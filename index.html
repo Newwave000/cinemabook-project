@@ -2,47 +2,55 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Rotantomatoo</title>
+<title>Review Popcorn </title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family: 'Roboto', sans-serif; background:#f5f5f5; }
-  header { background:#b9090b; color:white; display:flex; align-items:center; padding:15px 50px; justify-content:space-between; }
-  header h1 { font-size:24px; }
-  nav a { color:white; text-decoration:none; margin-left:20px; font-weight:500; }
-  nav a:hover { text-decoration:underline; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family: 'Roboto', sans-serif; background:#f5f5f5; }
+header { background:#b9090b; color:white; display:flex; align-items:center; padding:15px 50px; justify-content:space-between; }
+header h1 { font-size:24px; }
+nav a { color:white; text-decoration:none; margin-left:20px; font-weight:500; }
+nav a:hover { text-decoration:underline; }
 
-  .hero { padding:40px; text-align:center; background:#e50914; color:white; }
-  .hero h2 { font-size:36px; margin-bottom:10px; }
-  .hero p { font-size:18px; }
+.hero { padding:40px; text-align:center; background:#e50914; color:white; }
+.hero h2 { font-size:36px; margin-bottom:10px; }
+.hero p { font-size:18px; }
 
-  .search-bar { text-align:center; margin:20px; }
-  .search-bar input { width:400px; padding:10px; font-size:16px; border-radius:5px; border:1px solid #ccc; }
-  .search-bar button { padding:10px 20px; margin-left:10px; background:#b9090b; color:white; border:none; border-radius:5px; cursor:pointer; }
-  .search-bar button:hover { background:#e50914; }
+.search-bar { text-align:center; margin:20px; }
+.search-bar input { width:400px; padding:10px; font-size:16px; border-radius:5px; border:1px solid #ccc; }
+.search-bar button { padding:10px 20px; margin-left:10px; background:#b9090b; color:white; border:none; border-radius:5px; cursor:pointer; }
+.search-bar button:hover { background:#e50914; }
 
-  .movies { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; padding:20px; }
-  .movie-card { background:white; width:220px; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.2); transition:transform 0.2s; }
-  .movie-card:hover { transform:scale(1.05); }
-  .movie-card img { width:100%; height:330px; object-fit:cover; }
-  .movie-info { padding:10px; }
-  .movie-info h3 { font-size:18px; margin-bottom:5px; }
-  .rating { font-weight:bold; margin-bottom:5px; }
+.genre-section { padding:20px 50px; }
+.genre-section h2 { margin-bottom:10px; color:#b9090b; }
 
-  .fresh { color:green; font-weight:bold; }
-  .rotten { color:red; font-weight:bold; }
+.genre-grid { display:flex; overflow-x:auto; gap:15px; padding-bottom:10px; }
+.genre-card { background:white; min-width:180px; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.2); flex-shrink:0; }
+.genre-card img { width:100%; height:250px; object-fit:cover; }
+.genre-info { padding:10px; }
+.genre-info h4 { font-size:16px; margin-bottom:5px; }
+.genre-info p { font-size:12px; }
+.rating { color:#b9090b; font-weight:bold; }
 
-  .reviews { padding:10px; border-top:1px solid #eee; max-height:150px; overflow-y:auto; }
-  .review { margin-bottom:5px; border-bottom:1px solid #eee; padding-bottom:5px; }
-  .review strong { color:#b9090b; }
-  form input, form textarea { width:100%; margin:5px 0; padding:5px; }
-  form button { width:100%; margin-top:5px; }
+.movies { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; padding:20px; }
+.movie-card { background:white; width:220px; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.2); transition:transform 0.2s; }
+.movie-card:hover { transform:scale(1.05); }
+.movie-card img { width:100%; height:330px; object-fit:cover; }
+.movie-info { padding:10px; }
+.movie-info h3 { font-size:18px; margin-bottom:5px; }
+
+.reviews { padding:10px; border-top:1px solid #eee; max-height:150px; overflow-y:auto; }
+.review { margin-bottom:5px; border-bottom:1px solid #eee; padding-bottom:5px; }
+.review strong { color:#b9090b; }
+form input, form textarea { width:100%; margin:5px 0; padding:5px; }
+form button { width:100%; margin-top:5px; cursor:pointer; background:#b9090b; color:white; border:none; border-radius:5px; }
+form button:hover { background:#e50914; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Rotantomatoo</h1>
+  <h1>Review Popcorn </h1>
   <nav>
     <a href="#">Movies</a>
     <a href="#">Top Rated</a>
@@ -63,19 +71,37 @@
 
 <div class="movies" id="movies"></div>
 
-<script>
-const apiKey = '88e73149'; // ✅ Your OMDb API key
-const moviesDiv = document.getElementById('movies');
+<!-- Genre Sections -->
+<div class="genre-section" id="thriller-section">
+  <h2>Top Thriller Movies</h2>
+  <div class="genre-grid" id="thriller-grid"></div>
+</div>
 
-// Search movies
+<div class="genre-section" id="comedy-section">
+  <h2>Top Comedy Movies</h2>
+  <div class="genre-grid" id="comedy-grid"></div>
+</div>
+
+<div class="genre-section" id="action-section">
+  <h2>Top Action Movies</h2>
+  <div class="genre-grid" id="action-grid"></div>
+</div>
+
+<script>
+const apiKey = '88e73149'; // OMDb API key
+
+const thrillerTitles = ["The Silence of the Lambs","Se7en","Gone Girl","Inception","Shutter Island","The Usual Suspects","Memento","Psycho","Joker","No Country for Old Men"];
+const comedyTitles = ["The Grand Budapest Hotel","Superbad","The Hangover","Step Brothers","Borat","Groundhog Day","Bridesmaids","Mean Girls","Zombieland","Deadpool"];
+const actionTitles = ["Mad Max: Fury Road","The Dark Knight","Gladiator","Inception","Die Hard","John Wick","The Bourne Identity","Avengers: Endgame","Casino Royale","Terminator 2"];
+
+// Search movies function
+const moviesDiv = document.getElementById('movies');
 async function searchMovies() {
   const query = document.getElementById('searchInput').value;
   if(!query) return;
   moviesDiv.innerHTML = 'Loading...';
-
   const res = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(query)}&apikey=${apiKey}`);
   const data = await res.json();
-
   if(data.Response === "True"){
     displayMovies(data.Search);
   } else {
@@ -83,7 +109,6 @@ async function searchMovies() {
   }
 }
 
-// Display movies
 function displayMovies(movies){
   moviesDiv.innerHTML = '';
   movies.forEach(movie=>{
@@ -92,13 +117,12 @@ function displayMovies(movies){
 
     const reviews = JSON.parse(localStorage.getItem('reviews-'+movie.imdbID) || '[]');
     const avgRating = reviews.length ? (reviews.reduce((a,b)=>a+Number(b.rating),0)/reviews.length).toFixed(1) : 'N/A';
-    const freshClass = avgRating >= 6 ? 'fresh' : 'rotten';
 
     card.innerHTML = `
       <img src="${movie.Poster !== "N/A" ? movie.Poster : ''}" alt="${movie.Title}">
       <div class="movie-info">
         <h3>${movie.Title} (${movie.Year})</h3>
-        <p class="rating ${freshClass}">${avgRating !== 'N/A' ? avgRating+' ⭐' : 'No Rating'}</p>
+        <p class="rating">${avgRating !== 'N/A' ? avgRating+' ⭐' : 'No Rating'}</p>
         <form id="form-${movie.imdbID}">
           <input type="text" placeholder="Name" name="name" required/>
           <input type="number" placeholder="Rating 1-10" name="rating" min="1" max="10" required/>
@@ -108,10 +132,8 @@ function displayMovies(movies){
         <div class="reviews" id="reviews-${movie.imdbID}"></div>
       </div>
     `;
-
     moviesDiv.appendChild(card);
 
-    // Render existing reviews
     const reviewsDiv = document.getElementById(`reviews-${movie.imdbID}`);
     reviews.forEach(r=>{
       const rDiv = document.createElement('div');
@@ -120,80 +142,46 @@ function displayMovies(movies){
       reviewsDiv.appendChild(rDiv);
     });
 
-    // Form submit
     const form = document.getElementById(`form-${movie.imdbID}`);
     form.addEventListener('submit', function(e){
       e.preventDefault();
       const name = this.name.value;
       const rating = this.rating.value;
       const comment = this.comment.value;
-      reviews.push({name, rating, comment});
+      reviews.push({name,rating,comment});
       localStorage.setItem('reviews-'+movie.imdbID, JSON.stringify(reviews));
       searchMovies();
-const thrillerTitles = [
-  "The Silence of the Lambs", "Se7en", "Gone Girl", "Inception",
-  "Shutter Island", "The Usual Suspects", "Memento", "Psycho",
-  "Joker", "No Country for Old Men", "Prisoners", "Zodiac",
-  "The Departed", "Oldboy", "Rear Window", "The Sixth Sense",
-  "Black Swan", "Ocean’s Eleven", "The Girl with the Dragon Tattoo",
-  "Sicario", "Nightcrawler", "Gone Baby Gone", "The Prestige",
-  "Insomnia", "Wind River", "Memories of Murder", "The Bourne Ultimatum",
-  "Basic Instinct", "The Fugitive", "The Conversation",
-  "Death Proof", "The Game", "Collateral", "Enemy of the State",
-  "The Manchurian Candidate", "The Third Man", "Broken Arrow",
-  "Run Lola Run", "The Bourne Identity", "Side Effects",
-  "Heat", "Traffic", "Night Moves", "Hard Candy", "Copycat",
-  "The Invisible Man", "Get Out", "High‑Rise", "Unbreakable"
-];
-
-async function loadTopThrillers() {
-  const container = document.getElementById("thriller-section");
-  container.innerHTML = `<h2>Top Thriller Movies</h2><div class="thriller-grid"></div>`;
-  const grid = container.querySelector(".thriller-grid");
-
-  for (const title of thrillerTitles) {
-    const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${apiKey}`);
-    const movie = await res.json();
-    if (movie && movie.Response === "True") {
-      grid.innerHTML += `
-        <div class="thriller-card">
-          <img src="${movie.Poster !== "N/A" ? movie.Poster : 'default-poster.jpg'}" alt="${movie.Title}" />
-          <h3>${movie.Title} (${movie.Year})</h3>
-          <p class="rating">⭐ ${movie.imdbRating || "N/A"}</p>
-          <p class="plot">${movie.Plot || "Plot unavailable."}</p>
-        </div>
-      `;
-    }
-  }
-}
-loadTopThrillers();
-<section id="thriller-section"></section>
-#thriller-section {
-  padding: 40px;
-  background: #fff;
-}
-.thriller-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px;
-}
-.thriller-card {
-  background: #f4f4f4;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 14px;
-}
-.thriller-card img {
-  width: 100%;
-  border-radius: 6px;
-}
-.thriller-card h3 { font-size: 16px; margin-top: 8px; }
-.thriller-card .rating { color: #b9090b; font-weight: bold; }
-.thriller-card .plot { font-size: 13px; margin: 8px 0; }
-
     });
   });
 }
+
+// Function to load genre sections
+async function loadGenreSection(titles, containerId){
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  for(const title of titles){
+    const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${apiKey}`);
+    const movie = await res.json();
+    if(movie.Response==="True"){
+      const card = document.createElement('div');
+      card.className = 'genre-card';
+      card.innerHTML = `
+        <img src="${movie.Poster !== "N/A"?movie.Poster:''}" alt="${movie.Title}" />
+        <div class="genre-info">
+          <h4>${movie.Title} (${movie.Year})</h4>
+          <p class="rating">⭐ ${movie.imdbRating || 'N/A'}</p>
+          <p>${movie.Plot || 'Plot not available'}</p>
+        </div>
+      `;
+      container.appendChild(card);
+    }
+  }
+}
+
+// Load all genre sections
+loadGenreSection(thrillerTitles,'thriller-grid');
+loadGenreSection(comedyTitles,'comedy-grid');
+loadGenreSection(actionTitles,'action-grid');
 </script>
 
 </body>
