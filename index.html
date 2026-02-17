@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Rotantomatoo</title>
-<style>
-  body { font-family: Arial; margin:0; background:#f8f8f8; }
-  header { background:#e50914; color:white; padding:20px; text-align:center; }
-  .search { margin: 20px; text-align:center; }
-  .search input { width:300px; padding:10px; font-size:16px; }
-  .movies { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; padding:20px; }
-  .movie { background:white; width:200px; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
-  .movie img { width:100%; }
-  .movie-info { padding:10px; }
-  .rating { font-weight:bold; color:#e50914; }
-  .reviews { padding:10px; border-top:1px solid #eee; max-height:200px; overflow-y:auto; }
-  .review { margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px; }
-  button { background:#e50914; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:5px; }
-</style>
+  <meta charset="UTF-8">
+  <title>Rotantomatoo</title>
+  <style>
+    body { font-family: Arial; margin:0; background:#f8f8f8; }
+    header { background:#e50914; color:white; padding:20px; text-align:center; }
+    .search { margin: 20px; text-align:center; }
+    .search input { width:300px; padding:10px; font-size:16px; }
+    .movies { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; padding:20px; }
+    .movie { background:white; width:200px; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+    .movie img { width:100%; }
+    .movie-info { padding:10px; }
+    .rating { font-weight:bold; color:#e50914; }
+    .reviews { padding:10px; border-top:1px solid #eee; max-height:200px; overflow-y:auto; }
+    .review { margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px; }
+    button { background:#e50914; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:5px; }
+  </style>
 </head>
 <body>
 
@@ -32,50 +32,54 @@
 <div class="movies" id="movies"></div>
 
 <script>
-const apiKey = 'YOUR_TMDB_API_KEY'; // 🔑 Replace with your TMDB API key
-const baseImg = 'https://image.tmdb.org/t/p/w500';
+const apiKey = '88e73149'; // ✅ Your OMDb API key
 const moviesDiv = document.getElementById('movies');
 
-// Load popular movies
-async function loadMovies(query='') {
+// Search movies
+async function searchMovies() {
+  const query = document.getElementById('searchInput').value;
+  if(!query) return;
   moviesDiv.innerHTML = 'Loading...';
-  let url = query 
-    ? `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${query}`
-    : `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`;
-  
-  const res = await fetch(url);
+
+  const res = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(query)}&apikey=${apiKey}`);
   const data = await res.json();
-  displayMovies(data.results);
+
+  if(data.Response === "True"){
+    displayMovies(data.Search);
+  } else {
+    moviesDiv.innerHTML = '<p>No movies found.</p>';
+  }
 }
 
 // Display movies
-function displayMovies(movies) {
+function displayMovies(movies){
   moviesDiv.innerHTML = '';
-  movies.forEach(movie => {
+  movies.forEach(movie=>{
     const movieDiv = document.createElement('div');
     movieDiv.className = 'movie';
-    const reviews = JSON.parse(localStorage.getItem('reviews-'+movie.id) || '[]');
-    const avgRating = reviews.length ? (reviews.reduce((a,b)=>a+Number(b.rating),0)/reviews.length).toFixed(1) : movie.vote_average.toFixed(1);
+    
+    // Load reviews from localStorage
+    const reviews = JSON.parse(localStorage.getItem('reviews-'+movie.imdbID) || '[]');
 
     movieDiv.innerHTML = `
-      <img src="${movie.poster_path ? baseImg+movie.poster_path : ''}" alt="${movie.title}" />
+      <img src="${movie.Poster !== "N/A" ? movie.Poster : ''}" alt="${movie.Title}" />
       <div class="movie-info">
-        <h3>${movie.title}</h3>
-        <p class="rating">Rating: ${avgRating} ⭐</p>
-        <form id="form-${movie.id}">
+        <h3>${movie.Title} (${movie.Year})</h3>
+        <p class="rating">Rating: ${reviews.length ? (reviews.reduce((a,b)=>a+Number(b.rating),0)/reviews.length).toFixed(1) : 'N/A'} ⭐</p>
+        <form id="form-${movie.imdbID}">
           <input type="text" placeholder="Your Name" name="name" required/>
           <input type="number" placeholder="Rating 1-5" name="rating" min="1" max="5" required/>
           <textarea placeholder="Comment" name="comment" required></textarea>
           <button type="submit">Add Review</button>
         </form>
-        <div class="reviews" id="reviews-${movie.id}"></div>
+        <div class="reviews" id="reviews-${movie.imdbID}"></div>
       </div>
     `;
     moviesDiv.appendChild(movieDiv);
 
     // Render existing reviews
-    const reviewsDiv = document.getElementById(`reviews-${movie.id}`);
-    reviews.forEach(r => {
+    const reviewsDiv = document.getElementById(`reviews-${movie.imdbID}`);
+    reviews.forEach(r=>{
       const rDiv = document.createElement('div');
       rDiv.className = 'review';
       rDiv.innerHTML = `<strong>${r.name} ⭐ ${r.rating}</strong><p>${r.comment}</p>`;
@@ -83,27 +87,18 @@ function displayMovies(movies) {
     });
 
     // Handle form submit
-    const form = document.getElementById(`form-${movie.id}`);
+    const form = document.getElementById(`form-${movie.imdbID}`);
     form.addEventListener('submit', function(e){
       e.preventDefault();
       const name = this.name.value;
       const rating = this.rating.value;
       const comment = this.comment.value;
       reviews.push({name, rating, comment});
-      localStorage.setItem('reviews-'+movie.id, JSON.stringify(reviews));
-      loadMovies(); // reload movies to update reviews
+      localStorage.setItem('reviews-'+movie.imdbID, JSON.stringify(reviews));
+      searchMovies(); // reload movies to show updated reviews
     });
   });
 }
-
-// Search function
-function searchMovies() {
-  const query = document.getElementById('searchInput').value;
-  loadMovies(query);
-}
-
-// Initial load
-loadMovies();
 </script>
 
 </body>
