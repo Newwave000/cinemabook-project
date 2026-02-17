@@ -1,30 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Write Your Review </title>
-  <style>
-    body { font-family: Arial; margin:0; background:#f8f8f8; }
-    header { background:#e50914; color:white; padding:20px; text-align:center; }
-    .search { margin: 20px; text-align:center; }
-    .search input { width:300px; padding:10px; font-size:16px; }
-    .movies { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; padding:20px; }
-    .movie { background:white; width:200px; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
-    .movie img { width:100%; }
-    .movie-info { padding:10px; }
-    .rating { font-weight:bold; color:#e50914; }
-    .reviews { padding:10px; border-top:1px solid #eee; max-height:200px; overflow-y:auto; }
-    .review { margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px; }
-    button { background:#e50914; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:5px; }
-  </style>
+<meta charset="UTF-8">
+<title>Rotantomatoo</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family: 'Roboto', sans-serif; background:#f5f5f5; }
+  header { background:#b9090b; color:white; display:flex; align-items:center; padding:15px 50px; justify-content:space-between; }
+  header h1 { font-size:24px; }
+  nav a { color:white; text-decoration:none; margin-left:20px; font-weight:500; }
+  nav a:hover { text-decoration:underline; }
+
+  .hero { padding:40px; text-align:center; background:#e50914; color:white; }
+  .hero h2 { font-size:36px; margin-bottom:10px; }
+  .hero p { font-size:18px; }
+
+  .search-bar { text-align:center; margin:20px; }
+  .search-bar input { width:400px; padding:10px; font-size:16px; border-radius:5px; border:1px solid #ccc; }
+  .search-bar button { padding:10px 20px; margin-left:10px; background:#b9090b; color:white; border:none; border-radius:5px; cursor:pointer; }
+  .search-bar button:hover { background:#e50914; }
+
+  .movies { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; padding:20px; }
+  .movie-card { background:white; width:220px; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.2); transition:transform 0.2s; }
+  .movie-card:hover { transform:scale(1.05); }
+  .movie-card img { width:100%; height:330px; object-fit:cover; }
+  .movie-info { padding:10px; }
+  .movie-info h3 { font-size:18px; margin-bottom:5px; }
+  .rating { font-weight:bold; margin-bottom:5px; }
+
+  .fresh { color:green; font-weight:bold; }
+  .rotten { color:red; font-weight:bold; }
+
+  .reviews { padding:10px; border-top:1px solid #eee; max-height:150px; overflow-y:auto; }
+  .review { margin-bottom:5px; border-bottom:1px solid #eee; padding-bottom:5px; }
+  .review strong { color:#b9090b; }
+  form input, form textarea { width:100%; margin:5px 0; padding:5px; }
+  form button { width:100%; margin-top:5px; }
+</style>
 </head>
 <body>
 
 <header>
-  <h1>Write Your Review</h1>
+  <h1>Rotantomatoo</h1>
+  <nav>
+    <a href="#">Movies</a>
+    <a href="#">Top Rated</a>
+    <a href="#">Upcoming</a>
+    <a href="#">About</a>
+  </nav>
 </header>
 
-<div class="search">
+<div class="hero">
+  <h2>Discover Movies</h2>
+  <p>Check reviews, ratings, and trending films</p>
+</div>
+
+<div class="search-bar">
   <input type="text" id="searchInput" placeholder="Search movies..." />
   <button onclick="searchMovies()">Search</button>
 </div>
@@ -55,27 +87,29 @@ async function searchMovies() {
 function displayMovies(movies){
   moviesDiv.innerHTML = '';
   movies.forEach(movie=>{
-    const movieDiv = document.createElement('div');
-    movieDiv.className = 'movie';
-    
-    // Load reviews from localStorage
-    const reviews = JSON.parse(localStorage.getItem('reviews-'+movie.imdbID) || '[]');
+    const card = document.createElement('div');
+    card.className = 'movie-card';
 
-    movieDiv.innerHTML = `
-      <img src="${movie.Poster !== "N/A" ? movie.Poster : ''}" alt="${movie.Title}" />
+    const reviews = JSON.parse(localStorage.getItem('reviews-'+movie.imdbID) || '[]');
+    const avgRating = reviews.length ? (reviews.reduce((a,b)=>a+Number(b.rating),0)/reviews.length).toFixed(1) : 'N/A';
+    const freshClass = avgRating >= 6 ? 'fresh' : 'rotten';
+
+    card.innerHTML = `
+      <img src="${movie.Poster !== "N/A" ? movie.Poster : ''}" alt="${movie.Title}">
       <div class="movie-info">
         <h3>${movie.Title} (${movie.Year})</h3>
-        <p class="rating">Rating: ${reviews.length ? (reviews.reduce((a,b)=>a+Number(b.rating),0)/reviews.length).toFixed(1) : 'N/A'} ⭐</p>
+        <p class="rating ${freshClass}">${avgRating !== 'N/A' ? avgRating+' ⭐' : 'No Rating'}</p>
         <form id="form-${movie.imdbID}">
-          <input type="text" placeholder="Your Name" name="name" required/>
-          <input type="number" placeholder="Rating 1-5" name="rating" min="1" max="5" required/>
+          <input type="text" placeholder="Name" name="name" required/>
+          <input type="number" placeholder="Rating 1-10" name="rating" min="1" max="10" required/>
           <textarea placeholder="Comment" name="comment" required></textarea>
           <button type="submit">Add Review</button>
         </form>
         <div class="reviews" id="reviews-${movie.imdbID}"></div>
       </div>
     `;
-    moviesDiv.appendChild(movieDiv);
+
+    moviesDiv.appendChild(card);
 
     // Render existing reviews
     const reviewsDiv = document.getElementById(`reviews-${movie.imdbID}`);
@@ -86,7 +120,7 @@ function displayMovies(movies){
       reviewsDiv.appendChild(rDiv);
     });
 
-    // Handle form submit
+    // Form submit
     const form = document.getElementById(`form-${movie.imdbID}`);
     form.addEventListener('submit', function(e){
       e.preventDefault();
@@ -95,7 +129,7 @@ function displayMovies(movies){
       const comment = this.comment.value;
       reviews.push({name, rating, comment});
       localStorage.setItem('reviews-'+movie.imdbID, JSON.stringify(reviews));
-      searchMovies(); // reload movies to show updated reviews
+      searchMovies();
     });
   });
 }
