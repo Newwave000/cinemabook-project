@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rotantomatoo</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f0f0f0; }
+    h1 { color: #e50914; }
+    .movie { background: #fff; padding: 10px; margin: 10px 0; border-radius: 5px; }
+    .review { margin-left: 20px; border-left: 2px solid #ccc; padding-left: 10px; }
+    input, textarea { width: 100%; margin: 5px 0; padding: 5px; }
+    button { padding: 5px 10px; background: #e50914; color: #fff; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<h1>Rotantomatoo</h1>
+
+<div id="movies"></div>
+
+<script>
+const movies = [
+  { id: '1', title: 'Inception' },
+  { id: '2', title: 'Interstellar' },
+  { id: '3', title: 'Joker' },
+];
+
+// Load reviews from localStorage
+function loadReviews() {
+  const reviews = JSON.parse(localStorage.getItem('reviews') || '{}');
+  return reviews;
+}
+
+// Save review to localStorage
+function saveReview(movieId, review) {
+  const reviews = loadReviews();
+  if (!reviews[movieId]) reviews[movieId] = [];
+  reviews[movieId].push(review);
+  localStorage.setItem('reviews', JSON.stringify(reviews));
+}
+
+// Render movies
+function renderMovies() {
+  const container = document.getElementById('movies');
+  container.innerHTML = '';
+  const reviewsData = loadReviews();
+
+  movies.forEach(movie => {
+    const div = document.createElement('div');
+    div.className = 'movie';
+    div.innerHTML = `
+      <h2>${movie.title}</h2>
+      <form id="form-${movie.id}">
+        <input type="text" placeholder="Your Name" required name="name"/>
+        <textarea placeholder="Your Comment" required name="comment"></textarea>
+        <input type="number" min="1" max="5" placeholder="Rating (1-5)" required name="rating"/>
+        <button type="submit">Submit Review</button>
+      </form>
+      <div id="reviews-${movie.id}"></div>
+    `;
+    container.appendChild(div);
+
+    // Render existing reviews
+    const reviewDiv = document.getElementById(`reviews-${movie.id}`);
+    if (reviewsData[movie.id]) {
+      reviewsData[movie.id].forEach(r => {
+        const rDiv = document.createElement('div');
+        rDiv.className = 'review';
+        rDiv.innerHTML = `<strong>${r.name} ⭐ ${r.rating}</strong><p>${r.comment}</p>`;
+        reviewDiv.appendChild(rDiv);
+      });
+    }
+
+    // Form submit
+    const form = document.getElementById(`form-${movie.id}`);
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = this.name.value;
+      const comment = this.comment.value;
+      const rating = this.rating.value;
+      saveReview(movie.id, { name, comment, rating });
+      renderMovies(); // re-render to show new review
+    });
+  });
+}
+
+renderMovies();
+</script>
+
+</body>
+</html>
