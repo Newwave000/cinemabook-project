@@ -1,90 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Rotantomatoo</title>
-  <style>
-    body { font-family: Arial; padding: 20px; background: #f0f0f0; }
-    h1 { color: #e50914; }
-    .movie { background: #fff; padding: 10px; margin: 10px 0; border-radius: 5px; }
-    .review { margin-left: 20px; border-left: 2px solid #ccc; padding-left: 10px; }
-    input, textarea { width: 100%; margin: 5px 0; padding: 5px; }
-    button { padding: 5px 10px; background: #e50914; color: #fff; border: none; cursor: pointer; }
-  </style>
+<meta charset="UTF-8">
+<title>Rotantomatoo</title>
+<style>
+  body { font-family: Arial; margin:0; background:#f8f8f8; }
+  header { background:#e50914; color:white; padding:20px; text-align:center; }
+  .search { margin: 20px; text-align:center; }
+  .search input { width:300px; padding:10px; font-size:16px; }
+  .movies { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; padding:20px; }
+  .movie { background:white; width:200px; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+  .movie img { width:100%; }
+  .movie-info { padding:10px; }
+  .rating { font-weight:bold; color:#e50914; }
+  .reviews { padding:10px; border-top:1px solid #eee; max-height:200px; overflow-y:auto; }
+  .review { margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px; }
+  button { background:#e50914; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:5px; }
+</style>
 </head>
 <body>
 
-<h1>Rotantomatoo</h1>
+<header>
+  <h1>Rotantomatoo</h1>
+</header>
 
-<div id="movies"></div>
+<div class="search">
+  <input type="text" id="searchInput" placeholder="Search movies..." />
+  <button onclick="searchMovies()">Search</button>
+</div>
+
+<div class="movies" id="movies"></div>
 
 <script>
-const movies = [
-  { id: '1', title: 'Inception' },
-  { id: '2', title: 'Interstellar' },
-  { id: '3', title: 'Joker' },
-];
+const apiKey = 'YOUR_TMDB_API_KEY'; // 🔑 Replace with your TMDB API key
+const baseImg = 'https://image.tmdb.org/t/p/w500';
+const moviesDiv = document.getElementById('movies');
 
-// Load reviews from localStorage
-function loadReviews() {
-  const reviews = JSON.parse(localStorage.getItem('reviews') || '{}');
-  return reviews;
+// Load popular movies
+async function loadMovies(query='') {
+  moviesDiv.innerHTML = 'Loading...';
+  let url = query 
+    ? `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${query}`
+    : `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`;
+  
+  const res = await fetch(url);
+  const data = await res.json();
+  displayMovies(data.results);
 }
 
-// Save review to localStorage
-function saveReview(movieId, review) {
-  const reviews = loadReviews();
-  if (!reviews[movieId]) reviews[movieId] = [];
-  reviews[movieId].push(review);
-  localStorage.setItem('reviews', JSON.stringify(reviews));
-}
-
-// Render movies
-function renderMovies() {
-  const container = document.getElementById('movies');
-  container.innerHTML = '';
-  const reviewsData = loadReviews();
-
+// Display movies
+function displayMovies(movies) {
+  moviesDiv.innerHTML = '';
   movies.forEach(movie => {
-    const div = document.createElement('div');
-    div.className = 'movie';
-    div.innerHTML = `
-      <h2>${movie.title}</h2>
-      <form id="form-${movie.id}">
-        <input type="text" placeholder="Your Name" required name="name"/>
-        <textarea placeholder="Your Comment" required name="comment"></textarea>
-        <input type="number" min="1" max="5" placeholder="Rating (1-5)" required name="rating"/>
-        <button type="submit">Submit Review</button>
-      </form>
-      <div id="reviews-${movie.id}"></div>
+    const movieDiv = document.createElement('div');
+    movieDiv.className = 'movie';
+    const reviews = JSON.parse(localStorage.getItem('reviews-'+movie.id) || '[]');
+    const avgRating = reviews.length ? (reviews.reduce((a,b)=>a+Number(b.rating),0)/reviews.length).toFixed(1) : movie.vote_average.toFixed(1);
+
+    movieDiv.innerHTML = `
+      <img src="${movie.poster_path ? baseImg+movie.poster_path : ''}" alt="${movie.title}" />
+      <div class="movie-info">
+        <h3>${movie.title}</h3>
+        <p class="rating">Rating: ${avgRating} ⭐</p>
+        <form id="form-${movie.id}">
+          <input type="text" placeholder="Your Name" name="name" required/>
+          <input type="number" placeholder="Rating 1-5" name="rating" min="1" max="5" required/>
+          <textarea placeholder="Comment" name="comment" required></textarea>
+          <button type="submit">Add Review</button>
+        </form>
+        <div class="reviews" id="reviews-${movie.id}"></div>
+      </div>
     `;
-    container.appendChild(div);
+    moviesDiv.appendChild(movieDiv);
 
     // Render existing reviews
-    const reviewDiv = document.getElementById(`reviews-${movie.id}`);
-    if (reviewsData[movie.id]) {
-      reviewsData[movie.id].forEach(r => {
-        const rDiv = document.createElement('div');
-        rDiv.className = 'review';
-        rDiv.innerHTML = `<strong>${r.name} ⭐ ${r.rating}</strong><p>${r.comment}</p>`;
-        reviewDiv.appendChild(rDiv);
-      });
-    }
+    const reviewsDiv = document.getElementById(`reviews-${movie.id}`);
+    reviews.forEach(r => {
+      const rDiv = document.createElement('div');
+      rDiv.className = 'review';
+      rDiv.innerHTML = `<strong>${r.name} ⭐ ${r.rating}</strong><p>${r.comment}</p>`;
+      reviewsDiv.appendChild(rDiv);
+    });
 
-    // Form submit
+    // Handle form submit
     const form = document.getElementById(`form-${movie.id}`);
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function(e){
       e.preventDefault();
       const name = this.name.value;
-      const comment = this.comment.value;
       const rating = this.rating.value;
-      saveReview(movie.id, { name, comment, rating });
-      renderMovies(); // re-render to show new review
+      const comment = this.comment.value;
+      reviews.push({name, rating, comment});
+      localStorage.setItem('reviews-'+movie.id, JSON.stringify(reviews));
+      loadMovies(); // reload movies to update reviews
     });
   });
 }
 
-renderMovies();
+// Search function
+function searchMovies() {
+  const query = document.getElementById('searchInput').value;
+  loadMovies(query);
+}
+
+// Initial load
+loadMovies();
 </script>
 
 </body>
