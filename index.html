@@ -130,6 +130,67 @@ function displayMovies(movies){
       reviews.push({name, rating, comment});
       localStorage.setItem('reviews-'+movie.imdbID, JSON.stringify(reviews));
       searchMovies();
+const thrillerTitles = [
+  "The Silence of the Lambs", "Se7en", "Gone Girl", "Inception",
+  "Shutter Island", "The Usual Suspects", "Memento", "Psycho",
+  "Joker", "No Country for Old Men", "Prisoners", "Zodiac",
+  "The Departed", "Oldboy", "Rear Window", "The Sixth Sense",
+  "Black Swan", "Ocean’s Eleven", "The Girl with the Dragon Tattoo",
+  "Sicario", "Nightcrawler", "Gone Baby Gone", "The Prestige",
+  "Insomnia", "Wind River", "Memories of Murder", "The Bourne Ultimatum",
+  "Basic Instinct", "The Fugitive", "The Conversation",
+  "Death Proof", "The Game", "Collateral", "Enemy of the State",
+  "The Manchurian Candidate", "The Third Man", "Broken Arrow",
+  "Run Lola Run", "The Bourne Identity", "Side Effects",
+  "Heat", "Traffic", "Night Moves", "Hard Candy", "Copycat",
+  "The Invisible Man", "Get Out", "High‑Rise", "Unbreakable"
+];
+
+async function loadTopThrillers() {
+  const container = document.getElementById("thriller-section");
+  container.innerHTML = `<h2>Top Thriller Movies</h2><div class="thriller-grid"></div>`;
+  const grid = container.querySelector(".thriller-grid");
+
+  for (const title of thrillerTitles) {
+    const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${apiKey}`);
+    const movie = await res.json();
+    if (movie && movie.Response === "True") {
+      grid.innerHTML += `
+        <div class="thriller-card">
+          <img src="${movie.Poster !== "N/A" ? movie.Poster : 'default-poster.jpg'}" alt="${movie.Title}" />
+          <h3>${movie.Title} (${movie.Year})</h3>
+          <p class="rating">⭐ ${movie.imdbRating || "N/A"}</p>
+          <p class="plot">${movie.Plot || "Plot unavailable."}</p>
+        </div>
+      `;
+    }
+  }
+}
+loadTopThrillers();
+<section id="thriller-section"></section>
+#thriller-section {
+  padding: 40px;
+  background: #fff;
+}
+.thriller-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+.thriller-card {
+  background: #f4f4f4;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+.thriller-card img {
+  width: 100%;
+  border-radius: 6px;
+}
+.thriller-card h3 { font-size: 16px; margin-top: 8px; }
+.thriller-card .rating { color: #b9090b; font-weight: bold; }
+.thriller-card .plot { font-size: 13px; margin: 8px 0; }
+
     });
   });
 }
