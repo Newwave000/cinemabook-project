@@ -2,7 +2,8 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Review Popcorn Ultra</title>
+<title>Review Popcorn Ultimate</title>
+
 <style>
 :root{
   --bg:#111;
@@ -35,6 +36,7 @@ button{
   color:white;
   border-radius:5px;
   cursor:pointer;
+  margin:3px;
 }
 .grid{
   display:flex;
@@ -47,6 +49,10 @@ button{
   min-width:180px;
   border-radius:8px;
   overflow:hidden;
+  transition:0.3s;
+}
+.card:hover{
+  transform:scale(1.08);
 }
 .card img{
   width:100%;
@@ -60,8 +66,10 @@ button{
 .star{
   color:gold;
   cursor:pointer;
+  font-size:18px;
 }
-#trailerModal{
+#trailerModal,
+#detailsModal{
   position:fixed;
   top:0;left:0;
   width:100%;height:100%;
@@ -73,6 +81,16 @@ button{
 #trailerModal iframe{
   width:80%;
   height:60%;
+}
+#detailsContent{
+  background:white;
+  color:black;
+  max-width:700px;
+  margin:auto;
+  padding:20px;
+  border-radius:10px;
+  overflow:auto;
+  max-height:90%;
 }
 </style>
 </head>
@@ -88,20 +106,35 @@ button{
 </header>
 
 <div style="text-align:center;padding:20px;">
-<input id="searchInput" placeholder="Search movies">
+<input id="searchInput" placeholder="Search movies or series">
 <button onclick="search()">Search</button>
 </div>
 
 <div class="grid" id="movies"></div>
 
+<!-- Trailer Modal -->
 <div id="trailerModal" onclick="closeTrailer()">
 <iframe id="trailerFrame" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<!-- Details Modal -->
+<div id="detailsModal">
+  <div id="detailsContent">
+    <h2 id="movieTitle"></h2>
+    <p id="moviePlot"></p>
+    <hr>
+    <h3>📖 Wikipedia Synopsis</h3>
+    <p id="wikiContent"></p>
+    <a id="wikiLink" target="_blank"></a>
+    <br><br>
+    <button onclick="closeDetails()">Close</button>
+  </div>
 </div>
 
 <script>
 const apiKey="88e73149";
 
-// LOGIN SYSTEM
+/* LOGIN SYSTEM */
 if(!localStorage.getItem("user")){
   const name=prompt("Enter your name to login:");
   if(name) localStorage.setItem("user",name);
@@ -111,12 +144,12 @@ function logout(){
   location.reload();
 }
 
-// DARK MODE
+/* DARK MODE */
 function toggleMode(){
   document.body.classList.toggle("light");
 }
 
-// SEARCH
+/* SEARCH */
 async function search(){
   const query=document.getElementById("searchInput").value;
   if(!query) return;
@@ -133,24 +166,22 @@ function display(list){
   list.forEach(item=>{
     const card=document.createElement("div");
     card.className="card";
-
     card.innerHTML=`
       <img src="${item.Poster}">
       <div class="info">
         <strong>${item.Title}</strong><br>
         ${item.Year}<br>
         <button onclick="watchTrailer('${item.Title}')">🎟 Trailer</button>
+        <button onclick="showDetails('${item.Title}')">📖 Details</button>
         <button onclick="addWatchlist('${item.Title}')">❤️</button>
-        <div>
-          ${generateStars(item.imdbID)}
-        </div>
+        <div>${generateStars(item.imdbID)}</div>
       </div>
     `;
     container.appendChild(card);
   });
 }
 
-// TRAILER POPUP (YouTube Search Embed)
+/* TRAILER */
 function watchTrailer(title){
   const url=`https://www.youtube.com/embed?listType=search&list=${title} trailer`;
   document.getElementById("trailerFrame").src=url;
@@ -161,7 +192,7 @@ function closeTrailer(){
   document.getElementById("trailerFrame").src="";
 }
 
-// WATCHLIST
+/* WATCHLIST */
 function addWatchlist(title){
   let list=JSON.parse(localStorage.getItem("watchlist")||"[]");
   if(!list.includes(title)){
@@ -175,7 +206,7 @@ function showWatchlist(){
   alert("Your Watchlist:\n\n"+list.join("\n"));
 }
 
-// STAR REVIEW SYSTEM
+/* STAR RATING */
 function generateStars(id){
   let stars="";
   for(let i=1;i<=5;i++){
@@ -186,6 +217,38 @@ function generateStars(id){
 function rate(id,value){
   localStorage.setItem("rating-"+id,value);
   alert("You rated "+value+" stars ⭐");
+}
+
+/* DETAILS + WIKIPEDIA */
+async function showDetails(title){
+
+  const omdbRes = await fetch(`https://www.omdbapi.com/?t=${title}&plot=full&apikey=${apiKey}`);
+  const omdbData = await omdbRes.json();
+
+  document.getElementById("movieTitle").innerText = omdbData.Title;
+  document.getElementById("moviePlot").innerText = omdbData.Plot;
+
+  try{
+    const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`);
+    const wikiData = await wikiRes.json();
+
+    if(wikiData.extract){
+      document.getElementById("wikiContent").innerText = wikiData.extract;
+      document.getElementById("wikiLink").href = wikiData.content_urls.desktop.page;
+      document.getElementById("wikiLink").innerText = "Read Full Article on Wikipedia";
+    }else{
+      document.getElementById("wikiContent").innerText="Wikipedia data not available.";
+      document.getElementById("wikiLink").innerText="";
+    }
+  }catch{
+    document.getElementById("wikiContent").innerText="Wikipedia data not available.";
+  }
+
+  document.getElementById("detailsModal").style.display="flex";
+}
+
+function closeDetails(){
+  document.getElementById("detailsModal").style.display="none";
 }
 </script>
 
