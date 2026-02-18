@@ -1,238 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Review Popcorn</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review Popcorn Ultra</title>
 <style>
-* { box-sizing:border-box; margin:0; padding:0; }
-body { font-family: 'Roboto', sans-serif; background:#eef3f9; }
-
-header {
-  background:#0d47a1;
-  color:white;
+:root{
+  --bg:#111;
+  --card:#1c1c1c;
+  --text:#fff;
+  --accent:#2196f3;
+}
+body.light{
+  --bg:#f5f5f5;
+  --card:#fff;
+  --text:#000;
+}
+body{
+  margin:0;
+  font-family:Arial;
+  background:var(--bg);
+  color:var(--text);
+}
+header{
+  background:#000;
+  padding:15px;
   display:flex;
-  align-items:center;
-  padding:15px 50px;
   justify-content:space-between;
+  align-items:center;
 }
-
-header h1 { font-size:24px; }
-
-nav a {
-  color:white;
-  text-decoration:none;
-  margin-left:20px;
-  font-weight:500;
-}
-
-nav a:hover { text-decoration:underline; }
-
-.hero {
-  padding:40px;
-  text-align:center;
-  background:#1565c0;
-  color:white;
-}
-
-.hero h2 { font-size:36px; margin-bottom:10px; }
-.hero p { font-size:18px; }
-
-.search-bar { text-align:center; margin:30px; }
-
-.search-bar input {
-  width:400px;
-  padding:10px;
-  font-size:16px;
-  border-radius:5px;
-  border:1px solid #ccc;
-}
-
-.search-bar button {
-  padding:10px 20px;
-  margin-left:10px;
-  background:#0d47a1;
-  color:white;
+button{
+  background:var(--accent);
   border:none;
+  padding:6px 12px;
+  color:white;
   border-radius:5px;
   cursor:pointer;
 }
-
-.search-bar button:hover { background:#1565c0; }
-
-.movies {
+.grid{
   display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:25px;
+  gap:15px;
+  overflow-x:auto;
   padding:20px;
 }
-
-.movie-card {
-  background:white;
-  width:240px;
-  border-radius:10px;
+.card{
+  background:var(--card);
+  min-width:180px;
+  border-radius:8px;
   overflow:hidden;
-  box-shadow:0 4px 12px rgba(0,0,0,0.15);
-  transition:0.3s;
 }
-
-.movie-card:hover { transform:scale(1.05); }
-
-.movie-card img {
+.card img{
   width:100%;
-  height:350px;
+  height:250px;
   object-fit:cover;
 }
-
-.movie-info { padding:12px; }
-
-.movie-info h3 { font-size:18px; margin-bottom:5px; }
-
-.rating { color:#0d47a1; font-weight:bold; margin-bottom:5px; }
-
-.genre-section { padding:30px 50px; }
-
-.genre-section h2 { margin-bottom:15px; color:#0d47a1; }
-
-.genre-grid {
-  display:flex;
-  gap:20px;
-  overflow-x:auto;
+.card .info{
+  padding:10px;
+  font-size:14px;
 }
-
-.genre-card {
-  background:white;
-  min-width:200px;
-  border-radius:10px;
-  overflow:hidden;
-  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+.star{
+  color:gold;
+  cursor:pointer;
 }
-
-.genre-card img {
-  width:100%;
-  height:280px;
-  object-fit:cover;
+#trailerModal{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.8);
+  display:none;
+  justify-content:center;
+  align-items:center;
 }
-
-.genre-info { padding:10px; }
-
-.genre-info h4 { font-size:15px; margin-bottom:5px; }
-
-.genre-info p { font-size:12px; }
-
+#trailerModal iframe{
+  width:80%;
+  height:60%;
+}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Review Popcorn</h1>
-  <nav>
-    <a href="#">Movies</a>
-    <a href="#">Top Rated</a>
-    <a href="#">Upcoming</a>
-    <a href="#">About</a>
-  </nav>
+<h2>🍿 Review Popcorn</h2>
+<div>
+<button onclick="toggleMode()">🌙</button>
+<button onclick="showWatchlist()">❤️ Watchlist</button>
+<button onclick="logout()">Logout</button>
+</div>
 </header>
 
-<div class="hero">
-  <h2>Discover Movies</h2>
-  <p>Check reviews, ratings, and trending films</p>
+<div style="text-align:center;padding:20px;">
+<input id="searchInput" placeholder="Search movies">
+<button onclick="search()">Search</button>
 </div>
 
-<div class="search-bar">
-  <input type="text" id="searchInput" placeholder="Search movies..." />
-  <button onclick="searchMovies()">Search</button>
-</div>
+<div class="grid" id="movies"></div>
 
-<div class="movies" id="movies"></div>
-
-<!-- Suggestion Section -->
-<div class="genre-section">
-  <h2>Top Suggested Movies</h2>
-  <div class="genre-grid" id="suggested-grid"></div>
+<div id="trailerModal" onclick="closeTrailer()">
+<iframe id="trailerFrame" frameborder="0" allowfullscreen></iframe>
 </div>
 
 <script>
+const apiKey="88e73149";
 
-const apiKey = "88e73149";   // Your OMDb API key
-const moviesDiv = document.getElementById('movies');
+// LOGIN SYSTEM
+if(!localStorage.getItem("user")){
+  const name=prompt("Enter your name to login:");
+  if(name) localStorage.setItem("user",name);
+}
+function logout(){
+  localStorage.removeItem("user");
+  location.reload();
+}
 
-async function searchMovies() {
-  const query = document.getElementById('searchInput').value;
+// DARK MODE
+function toggleMode(){
+  document.body.classList.toggle("light");
+}
+
+// SEARCH
+async function search(){
+  const query=document.getElementById("searchInput").value;
   if(!query) return;
-
-  moviesDiv.innerHTML = "Loading...";
-
-  const res = await fetch(`https://www.omdbapi.com/?s=${query}&apikey=${apiKey}`);
-  const data = await res.json();
-
-  if(data.Response === "True"){
-    displayMovies(data.Search);
-  } else {
-    moviesDiv.innerHTML = "<p>No movies found.</p>";
+  const res=await fetch(`https://www.omdbapi.com/?s=${query}&apikey=${apiKey}`);
+  const data=await res.json();
+  if(data.Response==="True"){
+    display(data.Search);
   }
 }
 
-function displayMovies(movies){
-  moviesDiv.innerHTML = '';
+function display(list){
+  const container=document.getElementById("movies");
+  container.innerHTML="";
+  list.forEach(item=>{
+    const card=document.createElement("div");
+    card.className="card";
 
-  movies.forEach(movie => {
-    const card = document.createElement('div');
-    card.className = 'movie-card';
-
-    card.innerHTML = `
-      <img src="${movie.Poster !== "N/A" ? movie.Poster : ''}">
-      <div class="movie-info">
-        <h3>${movie.Title}</h3>
-        <p>${movie.Year}</p>
+    card.innerHTML=`
+      <img src="${item.Poster}">
+      <div class="info">
+        <strong>${item.Title}</strong><br>
+        ${item.Year}<br>
+        <button onclick="watchTrailer('${item.Title}')">🎟 Trailer</button>
+        <button onclick="addWatchlist('${item.Title}')">❤️</button>
+        <div>
+          ${generateStars(item.imdbID)}
+        </div>
       </div>
     `;
-
-    moviesDiv.appendChild(card);
+    container.appendChild(card);
   });
 }
 
-
-// Suggested Movies
-const suggestedTitles = [
-  "Inception",
-  "The Dark Knight",
-  "Interstellar",
-  "Avengers: Endgame",
-  "Joker",
-  "Gladiator",
-  "John Wick",
-  "Titanic"
-];
-
-async function loadSuggested(){
-  const container = document.getElementById("suggested-grid");
-
-  for(const title of suggestedTitles){
-    const res = await fetch(`https://www.omdbapi.com/?t=${title}&apikey=${apiKey}`);
-    const movie = await res.json();
-
-    if(movie.Response === "True"){
-      const card = document.createElement("div");
-      card.className = "genre-card";
-
-      card.innerHTML = `
-        <img src="${movie.Poster !== "N/A" ? movie.Poster : ''}">
-        <div class="genre-info">
-          <h4>${movie.Title}</h4>
-          <p class="rating">⭐ ${movie.imdbRating}</p>
-        </div>
-      `;
-
-      container.appendChild(card);
-    }
-  }
+// TRAILER POPUP (YouTube Search Embed)
+function watchTrailer(title){
+  const url=`https://www.youtube.com/embed?listType=search&list=${title} trailer`;
+  document.getElementById("trailerFrame").src=url;
+  document.getElementById("trailerModal").style.display="flex";
+}
+function closeTrailer(){
+  document.getElementById("trailerModal").style.display="none";
+  document.getElementById("trailerFrame").src="";
 }
 
-loadSuggested();
+// WATCHLIST
+function addWatchlist(title){
+  let list=JSON.parse(localStorage.getItem("watchlist")||"[]");
+  if(!list.includes(title)){
+    list.push(title);
+    localStorage.setItem("watchlist",JSON.stringify(list));
+    alert("Added to Watchlist ❤️");
+  }
+}
+function showWatchlist(){
+  const list=JSON.parse(localStorage.getItem("watchlist")||"[]");
+  alert("Your Watchlist:\n\n"+list.join("\n"));
+}
 
+// STAR REVIEW SYSTEM
+function generateStars(id){
+  let stars="";
+  for(let i=1;i<=5;i++){
+    stars+=`<span class="star" onclick="rate('${id}',${i})">★</span>`;
+  }
+  return stars;
+}
+function rate(id,value){
+  localStorage.setItem("rating-"+id,value);
+  alert("You rated "+value+" stars ⭐");
+}
 </script>
 
 </body>
