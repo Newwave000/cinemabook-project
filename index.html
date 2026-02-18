@@ -2,55 +2,132 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Review Popcorn </title>
+<title>Review Popcorn</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
-body { font-family: 'Roboto', sans-serif; background:#f5f5f5; }
-header { background:#b9090b; color:white; display:flex; align-items:center; padding:15px 50px; justify-content:space-between; }
+body { font-family: 'Roboto', sans-serif; background:#eef3f9; }
+
+header {
+  background:#0d47a1;
+  color:white;
+  display:flex;
+  align-items:center;
+  padding:15px 50px;
+  justify-content:space-between;
+}
+
 header h1 { font-size:24px; }
-nav a { color:white; text-decoration:none; margin-left:20px; font-weight:500; }
+
+nav a {
+  color:white;
+  text-decoration:none;
+  margin-left:20px;
+  font-weight:500;
+}
+
 nav a:hover { text-decoration:underline; }
 
-.hero { padding:40px; text-align:center; background:#e50914; color:white; }
+.hero {
+  padding:40px;
+  text-align:center;
+  background:#1565c0;
+  color:white;
+}
+
 .hero h2 { font-size:36px; margin-bottom:10px; }
 .hero p { font-size:18px; }
 
-.search-bar { text-align:center; margin:20px; }
-.search-bar input { width:400px; padding:10px; font-size:16px; border-radius:5px; border:1px solid #ccc; }
-.search-bar button { padding:10px 20px; margin-left:10px; background:#b9090b; color:white; border:none; border-radius:5px; cursor:pointer; }
-.search-bar button:hover { background:#e50914; }
+.search-bar { text-align:center; margin:30px; }
 
-.genre-section { padding:20px 50px; }
-.genre-section h2 { margin-bottom:10px; color:#b9090b; }
+.search-bar input {
+  width:400px;
+  padding:10px;
+  font-size:16px;
+  border-radius:5px;
+  border:1px solid #ccc;
+}
 
-.genre-grid { display:flex; overflow-x:auto; gap:15px; padding-bottom:10px; }
-.genre-card { background:white; min-width:180px; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.2); flex-shrink:0; }
-.genre-card img { width:25%; height:50px; object-fit:cover; }
-.genre-info { padding:10px; }
-.genre-info h4 { font-size:16px; margin-bottom:5px; }
-.genre-info p { font-size:12px; }
-.rating { color:#b9090b; font-weight:bold; }
+.search-bar button {
+  padding:10px 20px;
+  margin-left:10px;
+  background:#0d47a1;
+  color:white;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+}
 
-.movies { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; padding:20px; }
-.movie-card { background:white; width:220px; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.2); transition:transform 0.2s; }
+.search-bar button:hover { background:#1565c0; }
+
+.movies {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:25px;
+  padding:20px;
+}
+
+.movie-card {
+  background:white;
+  width:240px;
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  transition:0.3s;
+}
+
 .movie-card:hover { transform:scale(1.05); }
-.movie-card img { width:25%; height:50px; object-fit:cover; }
-.movie-info { padding:10px; }
+
+.movie-card img {
+  width:100%;
+  height:350px;
+  object-fit:cover;
+}
+
+.movie-info { padding:12px; }
+
 .movie-info h3 { font-size:18px; margin-bottom:5px; }
 
-.reviews { padding:10px; border-top:1px solid #eee; max-height:150px; overflow-y:auto; }
-.review { margin-bottom:5px; border-bottom:1px solid #eee; padding-bottom:5px; }
-.review strong { color:#b9090b; }
-form input, form textarea { width:100%; margin:5px 0; padding:5px; }
-form button { width:100%; margin-top:5px; cursor:pointer; background:#b9090b; color:white; border:none; border-radius:5px; }
-form button:hover { background:#e50914; }
+.rating { color:#0d47a1; font-weight:bold; margin-bottom:5px; }
+
+.genre-section { padding:30px 50px; }
+
+.genre-section h2 { margin-bottom:15px; color:#0d47a1; }
+
+.genre-grid {
+  display:flex;
+  gap:20px;
+  overflow-x:auto;
+}
+
+.genre-card {
+  background:white;
+  min-width:200px;
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+
+.genre-card img {
+  width:100%;
+  height:280px;
+  object-fit:cover;
+}
+
+.genre-info { padding:10px; }
+
+.genre-info h4 { font-size:15px; margin-bottom:5px; }
+
+.genre-info p { font-size:12px; }
+
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Review Popcorn </h1>
+  <h1>Review Popcorn</h1>
   <nav>
     <a href="#">Movies</a>
     <a href="#">Top Rated</a>
@@ -71,117 +148,91 @@ form button:hover { background:#e50914; }
 
 <div class="movies" id="movies"></div>
 
-<!-- Genre Sections -->
-<div class="genre-section" id="thriller-section">
-  <h2>Top Thriller Movies</h2>
-  <div class="genre-grid" id="thriller-grid"></div>
-</div>
-
-<div class="genre-section" id="comedy-section">
-  <h2>Top Comedy Movies</h2>
-  <div class="genre-grid" id="comedy-grid"></div>
-</div>
-
-<div class="genre-section" id="action-section">
-  <h2>Top Action Movies</h2>
-  <div class="genre-grid" id="action-grid"></div>
+<!-- Suggestion Section -->
+<div class="genre-section">
+  <h2>Top Suggested Movies</h2>
+  <div class="genre-grid" id="suggested-grid"></div>
 </div>
 
 <script>
-const apiKey = '88e73149'; // OMDb API key
 
-const thrillerTitles = ["The Silence of the Lambs","Se7en","Gone Girl","Inception","Shutter Island","The Usual Suspects","Memento","Psycho","Joker","No Country for Old Men"];
-const comedyTitles = ["The Grand Budapest Hotel","Superbad","The Hangover","Step Brothers","Borat","Groundhog Day","Bridesmaids","Mean Girls","Zombieland","Deadpool"];
-const actionTitles = ["Mad Max: Fury Road","The Dark Knight","Gladiator","Inception","Die Hard","John Wick","The Bourne Identity","Avengers: Endgame","Casino Royale","Terminator 2"];
-
-// Search movies function
+const apiKey = "88e73149";   // Your OMDb API key
 const moviesDiv = document.getElementById('movies');
+
 async function searchMovies() {
   const query = document.getElementById('searchInput').value;
   if(!query) return;
-  moviesDiv.innerHTML = 'Loading...';
-  const res = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(query)}&apikey=${apiKey}`);
+
+  moviesDiv.innerHTML = "Loading...";
+
+  const res = await fetch(`https://www.omdbapi.com/?s=${query}&apikey=${apiKey}`);
   const data = await res.json();
+
   if(data.Response === "True"){
     displayMovies(data.Search);
   } else {
-    moviesDiv.innerHTML = '<p>No movies found.</p>';
+    moviesDiv.innerHTML = "<p>No movies found.</p>";
   }
 }
 
 function displayMovies(movies){
   moviesDiv.innerHTML = '';
-  movies.forEach(movie=>{
+
+  movies.forEach(movie => {
     const card = document.createElement('div');
     card.className = 'movie-card';
 
-    const reviews = JSON.parse(localStorage.getItem('reviews-'+movie.imdbID) || '[]');
-    const avgRating = reviews.length ? (reviews.reduce((a,b)=>a+Number(b.rating),0)/reviews.length).toFixed(1) : 'N/A';
-
     card.innerHTML = `
-      <img src="${movie.Poster !== "N/A" ? movie.Poster : ''}" alt="${movie.Title}">
+      <img src="${movie.Poster !== "N/A" ? movie.Poster : ''}">
       <div class="movie-info">
-        <h3>${movie.Title} (${movie.Year})</h3>
-        <p class="rating">${avgRating !== 'N/A' ? avgRating+' ⭐' : 'No Rating'}</p>
-        <form id="form-${movie.imdbID}">
-          <input type="text" placeholder="Name" name="name" required/>
-          <input type="number" placeholder="Rating 1-10" name="rating" min="1" max="10" required/>
-          <textarea placeholder="Comment" name="comment" required></textarea>
-          <button type="submit">Add Review</button>
-        </form>
-        <div class="reviews" id="reviews-${movie.imdbID}"></div>
+        <h3>${movie.Title}</h3>
+        <p>${movie.Year}</p>
       </div>
     `;
+
     moviesDiv.appendChild(card);
-
-    const reviewsDiv = document.getElementById(`reviews-${movie.imdbID}`);
-    reviews.forEach(r=>{
-      const rDiv = document.createElement('div');
-      rDiv.className = 'review';
-      rDiv.innerHTML = `<strong>${r.name} ⭐ ${r.rating}</strong><p>${r.comment}</p>`;
-      reviewsDiv.appendChild(rDiv);
-    });
-
-    const form = document.getElementById(`form-${movie.imdbID}`);
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      const name = this.name.value;
-      const rating = this.rating.value;
-      const comment = this.comment.value;
-      reviews.push({name,rating,comment});
-      localStorage.setItem('reviews-'+movie.imdbID, JSON.stringify(reviews));
-      searchMovies();
-    });
   });
 }
 
-// Function to load genre sections
-async function loadGenreSection(titles, containerId){
-  const container = document.getElementById(containerId);
-  container.innerHTML = '';
-  for(const title of titles){
-    const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${apiKey}`);
+
+// Suggested Movies
+const suggestedTitles = [
+  "Inception",
+  "The Dark Knight",
+  "Interstellar",
+  "Avengers: Endgame",
+  "Joker",
+  "Gladiator",
+  "John Wick",
+  "Titanic"
+];
+
+async function loadSuggested(){
+  const container = document.getElementById("suggested-grid");
+
+  for(const title of suggestedTitles){
+    const res = await fetch(`https://www.omdbapi.com/?t=${title}&apikey=${apiKey}`);
     const movie = await res.json();
-    if(movie.Response==="True"){
-      const card = document.createElement('div');
-      card.className = 'genre-card';
+
+    if(movie.Response === "True"){
+      const card = document.createElement("div");
+      card.className = "genre-card";
+
       card.innerHTML = `
-        <img src="${movie.Poster !== "N/A"?movie.Poster:''}" alt="${movie.Title}" />
+        <img src="${movie.Poster !== "N/A" ? movie.Poster : ''}">
         <div class="genre-info">
-          <h4>${movie.Title} (${movie.Year})</h4>
-          <p class="rating">⭐ ${movie.imdbRating || 'N/A'}</p>
-          <p>${movie.Plot || 'Plot not available'}</p>
+          <h4>${movie.Title}</h4>
+          <p class="rating">⭐ ${movie.imdbRating}</p>
         </div>
       `;
+
       container.appendChild(card);
     }
   }
 }
 
-// Load all genre sections
-loadGenreSection(thrillerTitles,'thriller-grid');
-loadGenreSection(comedyTitles,'comedy-grid');
-loadGenreSection(actionTitles,'action-grid');
+loadSuggested();
+
 </script>
 
 </body>
