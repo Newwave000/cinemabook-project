@@ -132,7 +132,7 @@ hr {
 // =======================
 // 🔥 REPLACE THESE KEYS
 // =======================
-const OMDB_KEY = "YOUR_OMDB_KEY";
+const OMDB_KEY = "88e73149";
 
 const firebaseConfig = {
   apiKey: "YOUR_FIREBASE_KEY",
@@ -175,7 +175,7 @@ async function search(){
   const query = document.getElementById("searchInput").value;
   if(!query) return alert("Enter movie name");
 
-  const res = await fetch(`https://www.omdbapi.com/?s=${query}&apikey=${OMDB_KEY}`);
+  const res = await fetch(`https://www.omdbapi.com/?s=${query}&apikey=${88e73149}`);
   const data = await res.json();
 
   if(data.Response==="False"){
