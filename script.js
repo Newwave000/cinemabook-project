@@ -1,5 +1,8 @@
 const apiKey = "88e73149";
 
+// ===============================
+// ➖ SECTION NAVIGATION
+// ===============================
 function showHome(){ hideAll(); document.getElementById("homeSection").style.display="block"; }
 function showSearch(){ hideAll(); document.getElementById("searchSection").style.display="block"; }
 function showNews(){ hideAll(); document.getElementById("newsSection").style.display="block"; }
@@ -11,13 +14,16 @@ function hideAll(){
   });
 }
 
-/* SEARCH FUNCTION */
+// ===============================
+// 🔍 SEARCH FUNCTION
+// ===============================
 async function search(){
   const query = document.getElementById("searchInput").value.trim();
   if(!query) return;
 
   const res = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(query)}&apikey=${apiKey}`);
   const data = await res.json();
+  console.log(data); // debugging
 
   if(data.Response === "True"){
     displayMovies(data.Search);
@@ -26,7 +32,9 @@ async function search(){
   }
 }
 
-/* DISPLAY MOVIES WITH REVIEW SYSTEM */
+// ===============================
+// 🎬 DISPLAY MOVIES + REVIEW SYSTEM
+// ===============================
 function displayMovies(movies){
   const container = document.getElementById("movies");
   container.innerHTML="";
@@ -64,7 +72,9 @@ function displayMovies(movies){
   });
 }
 
-/* ADD REVIEW */
+// ===============================
+// ➕ ADD REVIEW
+// ===============================
 function addReview(id, title){
   const text = document.getElementById(`review-${id}`).value.trim();
   const rating = Number(document.getElementById(`rating-${id}`).value);
@@ -83,7 +93,9 @@ function addReview(id, title){
   loadReviews(id);
 }
 
-/* LOAD REVIEWS + AVERAGE */
+// ===============================
+// 📊 LOAD REVIEWS + AVERAGE
+// ===============================
 function loadReviews(id){
   const reviewBox = document.getElementById(`reviews-${id}`);
   const reviews = JSON.parse(localStorage.getItem(id)) || [];
