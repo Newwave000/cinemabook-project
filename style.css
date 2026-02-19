@@ -1,172 +1,92 @@
-body{
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review Popcorn Ultimate</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<style>
+body {
   margin:0;
-  font-family:Arial;
-  background:#111;
+  font-family: Arial, sans-serif;
+  background:#121212;
   color:white;
 }
 
-header{
-  background:black;
+header {
+  background:#1f1f1f;
   padding:15px;
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
 
-button{
-  padding:6px 12px;
-  margin:3px;
-  background:#2196f3;
-  border:none;
-  color:white;
-  border-radius:5px;
-  cursor:pointer;
+header h2 {
+  color:#f5c518;
 }
 
-section{
+nav button {
+  background:#f5c518;
+  border:none;
+  padding:8px 12px;
+  margin:5px;
+  font-weight:bold;
+  cursor:pointer;
+  border-radius:5px;
+}
+
+section {
   padding:20px;
 }
 
-.grid{
+.search-box {
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.search-box input {
+  padding:8px;
+  width:250px;
+}
+
+.grid {
   display:flex;
-  gap:15px;
   flex-wrap:wrap;
-}
-
-.card{
-  background:#1c1c1c;
-  width:180px;
-  border-radius:8px;
-  overflow:hidden;
-}
-
-.card img{
-  width:100%;
-  height:250px;
-  object-fit:cover;
-}
-
-.news-box{
-  background:#1c1c1c;
-  padding:15px;
-  border-radius:10px;
-}
-
-.suggestions{
-  display:flex;
-  gap:15px;
-}
-
-.suggest-card{
-  background:#1c1c1c;
-  padding:15px;
-  border-radius:8px;
-}
-
-/* HERO SECTION */
-#heroSection {
-  position: relative;
-  height: 75vh;
-  background: url('https://images.unsplash.com/photo-1606112219348-204d7d8b94ee?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-}
-
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hero-content {
-  text-align: center;
-  max-width: 700px;
-  padding: 20px;
-}
-
-.hero-content h1 {
-  font-size: 3rem;
-  margin-bottom: 15px;
-}
-
-.hero-content p {
-  font-size: 1.2rem;
-  margin-bottom: 25px;
-}
-
-.hero-content button {
-  padding: 12px 30px;
-  font-size: 1rem;
-  background: #f5c518;
-  border: none;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.hero-content button:hover {
-  background: #e0b507;
-}
-
-/* HERO SEARCH BAR */
-.hero-search {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.hero-search input {
-  width: 70%;
-  padding: 12px;
-  border-radius: 5px 0 0 5px;
-  border: none;
-  font-size: 1rem;
-}
-
-.hero-search button {
-  padding: 12px 20px;
-  border-radius: 0 5px 5px 0;
-  border: none;
-  background: #f5c518;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.hero-search button:hover {
-  background: #e0b507;
-}
-
-/* Responsive */
-@media(max-width:600px){
-  .hero-content h1 {
-    font-size: 2rem;
-  }
-  .hero-search input {
-    width: 60%;
-  }
+  justify-content:center;
 }
 
 .movie-card {
-  background:#111;
-  color:white;
-  padding:15px;
+  background:#1e1e1e;
+  width:260px;
   margin:15px;
+  padding:15px;
   border-radius:10px;
   text-align:center;
+  box-shadow:0 0 10px rgba(0,0,0,0.5);
+}
+
+.movie-card img {
+  width:100%;
+  border-radius:8px;
+}
+
+.movie-card input,
+.movie-card select {
+  width:90%;
+  padding:6px;
+  margin:5px 0;
+}
+
+.movie-card button {
+  width:95%;
+  margin-top:5px;
 }
 
 .review-box {
-  background:#222;
+  background:#2a2a2a;
   padding:8px;
   margin-top:10px;
   border-radius:6px;
@@ -174,61 +94,200 @@ section{
   overflow-y:auto;
 }
 
-input, select, button {
-  margin:5px;
-  padding:5px;
+hr {
+  border:0.5px solid #444;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h2>🍿 Review Popcorn</h2>
+<nav>
+<button onclick="showHome()">Home</button>
+<button onclick="showSearch()">Search</button>
+<button onclick="showWatchlist()">❤️ Watchlist</button>
+</nav>
+</header>
+
+<section id="homeSection">
+<h1>Welcome to Review Popcorn 🎬</h1>
+<p>Discover • Review • Save • Rate</p>
+</section>
+
+<section id="searchSection" style="display:none;">
+<div class="search-box">
+<input id="searchInput" placeholder="Search movies...">
+<button onclick="search()">Search</button>
+</div>
+<div id="movies" class="grid"></div>
+</section>
+
+<section id="watchlistSection" style="display:none;">
+<h2>❤️ Your Watchlist</h2>
+<div id="watchlistMovies" class="grid"></div>
+</section>
+
+<script>
+// =======================
+// KEYS
+// =======================
+const OMDB_KEY = "88e73149"; // Replace with your OMDb key
+const firebaseConfig = {
+  apiKey: "YOUR_FIREBASE_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+};
+
+// =======================
+// FIREBASE INIT
+// =======================
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// =======================
+// NAVIGATION
+// =======================
+function showHome(){
+  document.getElementById("homeSection").style.display="block";
+  document.getElementById("searchSection").style.display="none";
+  document.getElementById("watchlistSection").style.display="none";
 }
 
-/* HERO SECTION */
-#heroSection {
-  position: relative;
-  height: 70vh;
-  background: url('https://images.unsplash.com/photo-1606112219348-204d7d8b94ee?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
+function showSearch(){
+  document.getElementById("homeSection").style.display="none";
+  document.getElementById("searchSection").style.display="block";
+  document.getElementById("watchlistSection").style.display="none";
 }
 
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6); /* dark overlay for readability */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+function showWatchlist(){
+  document.getElementById("homeSection").style.display="none";
+  document.getElementById("searchSection").style.display="none";
+  document.getElementById("watchlistSection").style.display="block";
+  loadWatchlist();
 }
 
-.hero-content {
-  text-align: center;
-  max-width: 700px;
-  padding: 20px;
+// =======================
+// SEARCH MOVIES
+// =======================
+async function search(){
+  const query = document.getElementById("searchInput").value.trim();
+  if(!query) return alert("Enter movie name");
+
+  const res = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(query)}&apikey=${OMDB_KEY}`);
+  const data = await res.json();
+
+  if(data.Response==="False"){
+    alert("Movie not found");
+    return;
+  }
+
+  displayMovies(data.Search);
 }
 
-.hero-content h1 {
-  font-size: 3rem;
-  margin-bottom: 15px;
+// =======================
+// DISPLAY MOVIES
+// =======================
+function displayMovies(movies){
+  const container = document.getElementById("movies");
+  container.innerHTML="";
+
+  movies.forEach(movie=>{
+    const poster = movie.Poster !== "N/A" ? movie.Poster : 'https://via.placeholder.com/150';
+
+    container.innerHTML += `
+      <div class="movie-card">
+        <img src="${poster}">
+        <h3>${movie.Title}</h3>
+        <p>${movie.Year}</p>
+
+        <p id="avg-${movie.imdbID}">⭐ Avg: Loading...</p>
+
+        <input id="review-${movie.imdbID}" placeholder="Write review">
+        <select id="rating-${movie.imdbID}">
+          <option value="5">⭐⭐⭐⭐⭐</option>
+          <option value="4">⭐⭐⭐⭐</option>
+          <option value="3">⭐⭐⭐</option>
+          <option value="2">⭐⭐</option>
+          <option value="1">⭐</option>
+        </select>
+
+        <button onclick="addReview('${movie.imdbID}','${movie.Title}')">Submit Review</button>
+        <button onclick="addToWatchlist('${movie.imdbID}','${movie.Title}','${poster}','${movie.Year}')">❤️ Add to Watchlist</button>
+
+        <div class="review-box" id="reviews-${movie.imdbID}"></div>
+      </div>
+    `;
+
+    loadReviews(movie.imdbID);
+  });
 }
 
-.hero-content p {
-  font-size: 1.2rem;
-  margin-bottom: 25px;
+// =======================
+// ADD REVIEW
+// =======================
+async function addReview(id,title){
+  const text = document.getElementById(`review-${id}`).value.trim();
+  const rating = Number(document.getElementById(`rating-${id}`).value);
+
+  if(!text) return alert("Write review first!");
+
+  await db.collection("reviews").add({
+    imdbID:id,
+    title,
+    review:text,
+    rating,
+    date:new Date()
+  });
+
+  document.getElementById(`review-${id}`).value="";
+  loadReviews(id);
 }
 
-.hero-content button {
-  padding: 12px 30px;
-  font-size: 1rem;
-  background: #f5c518;
-  border: none;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
+// =======================
+// LOAD REVIEWS + AVG
+// =======================
+async function loadReviews(id){
+  const snapshot = await db.collection("reviews").where("imdbID","==",id).get();
+  let total=0, count=0, html="";
+
+  snapshot.forEach(doc=>{
+    const data = doc.data();
+    total += data.rating;
+    count++;
+    html += `<p>${"⭐".repeat(data.rating)} - ${data.review}</p><hr>`;
+  });
+
+  document.getElementById(`reviews-${id}`).innerHTML = html;
+  const avg = count ? (total/count).toFixed(1) : "0";
+  document.getElementById(`avg-${id}`).innerHTML = `⭐ Avg: ${avg}`;
 }
 
-.hero-content button:hover {
-  background: #e0b507;
+// =======================
+// WATCHLIST
+// =======================
+async function addToWatchlist(id,title,poster,year){
+  await db.collection("watchlist").doc(id).set({ imdbID:id, title, poster, year });
+  alert("Added to Watchlist ❤️");
 }
+
+async function loadWatchlist(){
+  const container = document.getElementById("watchlistMovies");
+  container.innerHTML="";
+
+  const snapshot = await db.collection("watchlist").get();
+  snapshot.forEach(doc=>{
+    const m = doc.data();
+    container.innerHTML += `
+      <div class="movie-card">
+        <img src="${m.poster}">
+        <h3>${m.title}</h3>
+        <p>${m.year}</p>
+      </div>
+    `;
+  });
+}
+</script>
+
+</body>
+</html>
