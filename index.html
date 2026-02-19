@@ -1,11 +1,103 @@
-
-You said:
 <!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Review Popcorn Ultimate</title>
-<link rel="stylesheet" href="style.css">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<style>
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#121212;
+  color:white;
+}
+
+header {
+  background:#1f1f1f;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+header h2 {
+  color:#f5c518;
+}
+
+nav button {
+  background:#f5c518;
+  border:none;
+  padding:8px 12px;
+  margin:5px;
+  font-weight:bold;
+  cursor:pointer;
+  border-radius:5px;
+}
+
+section {
+  padding:20px;
+}
+
+.search-box {
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.search-box input {
+  padding:8px;
+  width:250px;
+}
+
+.grid {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+.movie-card {
+  background:#1e1e1e;
+  width:260px;
+  margin:15px;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
+  box-shadow:0 0 10px rgba(0,0,0,0.5);
+}
+
+.movie-card img {
+  width:100%;
+  border-radius:8px;
+}
+
+.movie-card input,
+.movie-card select {
+  width:90%;
+  padding:6px;
+  margin:5px 0;
+}
+
+.movie-card button {
+  width:95%;
+  margin-top:5px;
+}
+
+.review-box {
+  background:#2a2a2a;
+  padding:8px;
+  margin-top:10px;
+  border-radius:6px;
+  max-height:150px;
+  overflow-y:auto;
+}
+
+hr {
+  border:0.5px solid #444;
+}
+</style>
 </head>
 <body>
 
@@ -14,146 +106,204 @@ You said:
 <nav>
 <button onclick="showHome()">Home</button>
 <button onclick="showSearch()">Search</button>
-<button onclick="showNews()">Cinema News</button>
-<button onclick="showHistory()">History</button>
 <button onclick="showWatchlist()">❤️ Watchlist</button>
 </nav>
 </header>
 
-    card.innerHTML = `
-      <img src="${item.Poster !== "N/A" ? item.Poster : ""}" width="200">
-      <div style="padding:10px;">
-        <strong>${item.Title}</strong><br>
-        ${item.Year}
-        <div class="stars" data-id="${item.imdbID}">
-          ⭐ ⭐ ⭐ ⭐ ⭐
-        </div>
-        <textarea placeholder="Write your review..." id="review-${item.imdbID}"></textarea>
-        <button onclick="saveReview('${item.imdbID}', '${item.Title}')">
-          Submit Review
-        </button>
-        <div id="comments-${item.imdbID}"></div>
-      </div>
+<section id="homeSection">
+<h1>Welcome to Review Popcorn 🎬</h1>
+<p>Discover • Review • Save • Rate</p>
+</section>
+
+<section id="searchSection" style="display:none;">
+<div class="search-box">
+<input id="searchInput" placeholder="Search movies...">
+<button onclick="search()">Search</button>
+</div>
+<div id="movies" class="grid"></div>
+</section>
+
+<section id="watchlistSection" style="display:none;">
+<h2>❤️ Your Watchlist</h2>
+<div id="watchlistMovies" class="grid"></div>
+</section>
+
+<script>
+// =======================
+// 🔥 REPLACE THESE KEYS
+// =======================
+const OMDB_KEY = "YOUR_OMDB_KEY";
+
+const firebaseConfig = {
+  apiKey: "YOUR_FIREBASE_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+};
+
+// =======================
+// FIREBASE INIT
+// =======================
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// =======================
+// NAVIGATION
+// =======================
+function showHome(){
+  homeSection.style.display="block";
+  searchSection.style.display="none";
+  watchlistSection.style.display="none";
+}
+
+function showSearch(){
+  homeSection.style.display="none";
+  searchSection.style.display="block";
+  watchlistSection.style.display="none";
+}
+
+function showWatchlist(){
+  homeSection.style.display="none";
+  searchSection.style.display="none";
+  watchlistSection.style.display="block";
+  loadWatchlist();
+}
+
+// =======================
+// SEARCH MOVIES
+// =======================
+async function search(){
+  const query = document.getElementById("searchInput").value;
+  if(!query) return alert("Enter movie name");
+
+  const res = await fetch(`https://www.omdbapi.com/?s=${query}&apikey=${OMDB_KEY}`);
+  const data = await res.json();
+
+  if(data.Response==="False"){
+    alert("Movie not found");
+    return;
+  }
+
+  displayMovies(data.Search);
+}
+
+function displayMovies(movies){
+  const container = document.getElementById("movies");
+  container.innerHTML="";
+
+  movies.forEach(movie=>{
+    container.innerHTML += `
+    <div class="movie-card">
+      <img src="${movie.Poster}">
+      <h3>${movie.Title}</h3>
+      <p>${movie.Year}</p>
+
+      <p id="avg-${movie.imdbID}">⭐ Avg: Loading...</p>
+
+      <input id="review-${movie.imdbID}" placeholder="Write review">
+      <select id="rating-${movie.imdbID}">
+        <option value="5">⭐⭐⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="1">⭐</option>
+      </select>
+
+      <button onclick="addReview('${movie.imdbID}','${movie.Title}')">
+      Submit Review
+      </button>
+
+      <button onclick="addToWatchlist('${movie.imdbID}','${movie.Title}','${movie.Poster}','${movie.Year}')">
+      ❤️ Add to Watchlist
+      </button>
+
+      <div class="review-box" id="reviews-${movie.imdbID}"></div>
+    </div>
     `;
 
-    container.appendChild(card);
-
-    loadReviews(item.imdbID);
-    enableStars(item.imdbID);
+    loadReviews(movie.imdbID);
   });
 }
 
-/* STAR RATING */
-function enableStars(id){
-  const starContainer = document.querySelector(`[data-id='${id}']`);
-  const stars = starContainer.textContent.split(" ");
-  starContainer.innerHTML = "";
+// =======================
+// ADD REVIEW
+// =======================
+async function addReview(id,title){
+  const text = document.getElementById(`review-${id}`).value;
+  const rating = document.getElementById(`rating-${id}`).value;
 
-  for(let i=1;i<=5;i++){
-    const star = document.createElement("span");
-    star.innerHTML = "⭐";
-    star.style.cursor = "pointer";
+  if(!text) return alert("Write review first!");
 
-    star.addEventListener("click", function(){
-      localStorage.setItem("rating-"+id, i);
-      highlightStars(id, i);
-    });
-
-    starContainer.appendChild(star);
-  }
-
-  const savedRating = localStorage.getItem("rating-"+id);
-  if(savedRating){
-    highlightStars(id, savedRating);
-  }
-}
-
-function highlightStars(id, rating){
-  const starContainer = document.querySelector(`[data-id='${id}']`);
-  const stars = starContainer.querySelectorAll("span");
-
-  stars.forEach((star,index)=>{
-    star.style.color = index < rating ? "gold" : "gray";
+  await db.collection("reviews").add({
+    imdbID:id,
+    title:title,
+    review:text,
+    rating:Number(rating),
+    date:new Date()
   });
-}
 
-/* SAVE REVIEW */
-function saveReview(id,title){
-  const text = document.getElementById("review-"+id).value;
-  if(!text) return;
-
-  const reviews = JSON.parse(localStorage.getItem("reviews-"+id)) || [];
-  reviews.push(text);
-
-  localStorage.setItem("reviews-"+id, JSON.stringify(reviews));
-  document.getElementById("review-"+id).value = "";
-
+  document.getElementById(`review-${id}`).value="";
   loadReviews(id);
 }
 
-/* LOAD REVIEWS */
-function loadReviews(id){
-  const container = document.getElementById("comments-"+id);
-  const reviews = JSON.parse(localStorage.getItem("reviews-"+id)) || [];
+// =======================
+// LOAD REVIEWS + AVERAGE
+// =======================
+async function loadReviews(id){
+  const snapshot = await db.collection("reviews")
+  .where("imdbID","==",id)
+  .get();
 
-  container.innerHTML = "<h4>User Reviews:</h4>";
-  reviews.forEach(r=>{
-    const p = document.createElement("p");
-    p.innerText = r;
-    container.appendChild(p);
+  let total=0;
+  let count=0;
+  let html="";
+
+  snapshot.forEach(doc=>{
+    const data = doc.data();
+    total += data.rating;
+    count++;
+
+    html += `<p>${"⭐".repeat(data.rating)} - ${data.review}</p><hr>`;
+  });
+
+  document.getElementById(`reviews-${id}`).innerHTML = html;
+
+  const avg = count ? (total/count).toFixed(1) : "0";
+  document.getElementById(`avg-${id}`).innerHTML = `⭐ Avg: ${avg}`;
+}
+
+// =======================
+// WATCHLIST
+// =======================
+async function addToWatchlist(id,title,poster,year){
+  await db.collection("watchlist").doc(id).set({
+    imdbID:id,
+    title:title,
+    poster:poster,
+    year:year
+  });
+
+  alert("Added to Watchlist ❤️");
+}
+
+async function loadWatchlist(){
+  const container = document.getElementById("watchlistMovies");
+  container.innerHTML="";
+
+  const snapshot = await db.collection("watchlist").get();
+
+  snapshot.forEach(doc=>{
+    const m = doc.data();
+
+    container.innerHTML += `
+      <div class="movie-card">
+        <img src="${m.poster}">
+        <h3>${m.title}</h3>
+        <p>${m.year}</p>
+      </div>
+    `;
   });
 }
-  <!-- HERO SECTION -->
-<section id="heroSection">
-  <div class="hero-overlay">
-    <div class="hero-content">
-      <h1>Find & Review Movies You Love 🎬</h1>
-      <p>Discover trending films, rate them, and share your reviews with the world.</p>
+</script>
 
-<!-- HOME SECTION -->
-<section id="homeSection">
-<h1>Welcome to Review Popcorn 🎬</h1>
-<p>Your ultimate cinema discovery platform.</p>
-
-<h2>🎥 Movie Suggestions</h2>
-<div class="suggestions">
-  <div class="suggest-card">Inception</div>
-  <div class="suggest-card">Interstellar</div>
-  <div class="suggest-card">The Dark Knight</div>
-  <div class="suggest-card">Avengers Endgame</div>
-</div>
-</section>
-
-<!-- SEARCH SECTION -->
-<section id="searchSection" style="display:none;">
-<div style="text-align:center;padding:20px;">
-<input id="searchInput" placeholder="Search movies or series">
-<button onclick="search()">Search</button>
-</div>
-<div class="grid" id="movies"></div>
-</section>
-
-<!-- NEWS SECTION -->
-<section id="newsSection" style="display:none;">
-<h2>📰 Latest Cinema News</h2>
-<div class="news-box">
-<p>🎬 Upcoming Marvel movie releasing this year!</p>
-<p>🍿 Bollywood breaking box office records.</p>
-<p>🌍 International cinema gaining popularity.</p>
-</div>
-</section>
-
-<!-- HISTORY SECTION -->
-<section id="historySection" style="display:none;">
-<h2>📜 History of Cinema</h2>
-<p>
-Cinema started in the late 19th century. The Lumière brothers introduced
-motion picture projection in 1895. Silent films ruled early cinema,
-followed by black-and-white classics, and later color films revolutionized
-the industry. Today, cinema includes CGI, 3D, and OTT streaming platforms.
-</p>
-</section>
-
-<script src="script.js"></script>
 </body>
 </html>
