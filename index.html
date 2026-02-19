@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Review Popcorn Ultimate</title>
 
@@ -9,36 +10,184 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <style>
+/* ===== GENERAL ===== */
 body {
-  margin:0;
+  margin: 0;
   font-family: Arial, sans-serif;
-  background:#121212;
-  color:white;
+  background: #121212;
+  color: white;
 }
 
 header {
-  background:#1f1f1f;
-  padding:15px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  background: #1f1f1f;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 header h2 {
-  color:#f5c518;
+  color: #f5c518;
+  margin: 0;
 }
 
 nav button {
-  background:#f5c518;
-  border:none;
-  padding:8px 12px;
-  margin:5px;
-  font-weight:bold;
-  cursor:pointer;
-  border-radius:5px;
+  background: #f5c518;
+  border: none;
+  padding: 8px 12px;
+  margin: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.2s;
 }
 
-  <!-- HERO SECTION -->
+nav button:hover {
+  opacity: 0.8;
+}
+
+/* ===== HERO SECTION ===== */
+#heroSection {
+  background: url('https://via.placeholder.com/1200x400') center/cover no-repeat;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-overlay {
+  background: rgba(0,0,0,0.6);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-content h1 {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.hero-content p {
+  font-size: 1.1em;
+  margin-bottom: 15px;
+}
+
+.hero-content button {
+  background: #f5c518;
+  border: none;
+  padding: 10px 15px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.2s;
+}
+
+.hero-content button:hover {
+  opacity: 0.8;
+}
+
+/* ===== SECTIONS ===== */
+section {
+  padding: 20px;
+}
+
+.search-box {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.search-box input {
+  padding: 8px;
+  width: 250px;
+  border-radius: 5px;
+  border: none;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+}
+
+.movie-card {
+  background: #1e1e1e;
+  width: 260px;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  transition: transform 0.2s;
+}
+
+.movie-card:hover {
+  transform: scale(1.05);
+}
+
+.movie-card img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.movie-card input,
+.movie-card select {
+  width: 90%;
+  padding: 6px;
+  margin: 5px 0;
+  border-radius: 5px;
+  border: none;
+}
+
+.movie-card button {
+  width: 95%;
+  margin-top: 5px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  background: #f5c518;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.movie-card button:hover {
+  opacity: 0.8;
+}
+
+.review-box {
+  background: #2a2a2a;
+  padding: 8px;
+  margin-top: 10px;
+  border-radius: 6px;
+  max-height: 150px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+hr {
+  border: 0.5px solid #444;
+}
+
+/* ===== RESPONSIVE ===== */
+@media screen and (max-width: 600px){
+  .movie-card { width: 90%; }
+  .search-box input { width: 80%; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h2>🍿 Review Popcorn</h2>
+  <nav>
+    <button onclick="showHome()">Home</button>
+    <button onclick="showSearch()">Search</button>
+    <button onclick="showWatchlist()">❤️ Watchlist</button>
+  </nav>
+</header>
+
 <section id="heroSection">
   <div class="hero-overlay">
     <div class="hero-content">
@@ -49,101 +198,29 @@ nav button {
   </div>
 </section>
 
-section {
-  padding:20px;
-}
-
-.search-box {
-  text-align:center;
-  margin-bottom:20px;
-}
-
-.search-box input {
-  padding:8px;
-  width:250px;
-}
-
-.grid {
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-}
-
-.movie-card {
-  background:#1e1e1e;
-  width:260px;
-  margin:15px;
-  padding:15px;
-  border-radius:10px;
-  text-align:center;
-  box-shadow:0 0 10px rgba(0,0,0,0.5);
-}
-
-.movie-card img {
-  width:100%;
-  border-radius:8px;
-}
-
-.movie-card input,
-.movie-card select {
-  width:90%;
-  padding:6px;
-  margin:5px 0;
-}
-
-.movie-card button {
-  width:95%;
-  margin-top:5px;
-}
-
-.review-box {
-  background:#2a2a2a;
-  padding:8px;
-  margin-top:10px;
-  border-radius:6px;
-  max-height:150px;
-  overflow-y:auto;
-}
-
-hr {
-  border:0.5px solid #444;
-}
-</style>
-</head>
-<body>
-
-<header>
-<h2>🍿 Review Popcorn</h2>
-<nav>
-<button onclick="showHome()">Home</button>
-<button onclick="showSearch()">Search</button>
-<button onclick="showWatchlist()">❤️ Watchlist</button>
-</nav>
-</header>
-
 <section id="homeSection">
-<h1>Welcome to Review Popcorn 🎬</h1>
-<p>Discover • Review • Save • Rate</p>
+  <h1>Welcome to Review Popcorn 🎬</h1>
+  <p>Discover • Review • Save • Rate</p>
 </section>
 
 <section id="searchSection" style="display:none;">
-<div class="search-box">
-<input id="searchInput" placeholder="Search movies...">
-<button onclick="search()">Search</button>
-</div>
-<div id="movies" class="grid"></div>
+  <div class="search-box">
+    <input id="searchInput" placeholder="Search movies...">
+    <button onclick="search()">Search</button>
+  </div>
+  <div id="movies" class="grid"></div>
 </section>
 
 <section id="watchlistSection" style="display:none;">
-<h2>❤️ Your Watchlist</h2>
-<div id="watchlistMovies" class="grid"></div>
+  <h2>❤️ Your Watchlist</h2>
+  <div id="watchlistMovies" class="grid"></div>
 </section>
 
 <script>
 // =======================
-// 🔑 KEYS
+// 🔑 KEYS & FIREBASE CONFIG
 // =======================
-const OMDB_KEY = "88e73149"; // Replace with your OMDb API key
+const OMDB_KEY = "88e73149"; // Replace with your OMDb key
 
 const firebaseConfig = {
   apiKey: "YOUR_FIREBASE_KEY",
@@ -151,9 +228,6 @@ const firebaseConfig = {
   projectId: "YOUR_PROJECT_ID",
 };
 
-// =======================
-// FIREBASE INIT
-// =======================
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -170,6 +244,7 @@ function showSearch(){
   document.getElementById("homeSection").style.display="none";
   document.getElementById("searchSection").style.display="block";
   document.getElementById("watchlistSection").style.display="none";
+  document.getElementById("searchSection").scrollIntoView({behavior:"smooth"});
 }
 
 function showWatchlist(){
@@ -188,7 +263,6 @@ async function search(){
 
   const res = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(query)}&apikey=${OMDB_KEY}`);
   const data = await res.json();
-  console.log(data);
 
   if(data.Response==="False"){
     alert("Movie not found");
@@ -196,6 +270,12 @@ async function search(){
   }
 
   displayMovies(data.Search);
+}
+
+function escapeHTML(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 function displayMovies(movies){
@@ -208,8 +288,8 @@ function displayMovies(movies){
     container.innerHTML += `
     <div class="movie-card">
       <img src="${poster}">
-      <h3>${movie.Title}</h3>
-      <p>${movie.Year}</p>
+      <h3>${escapeHTML(movie.Title)}</h3>
+      <p>${escapeHTML(movie.Year)}</p>
 
       <p id="avg-${movie.imdbID}">⭐ Avg: Loading...</p>
 
@@ -222,13 +302,8 @@ function displayMovies(movies){
         <option value="1">⭐</option>
       </select>
 
-      <button onclick="addReview('${movie.imdbID}','${movie.Title}')">
-      Submit Review
-      </button>
-
-      <button onclick="addToWatchlist('${movie.imdbID}','${movie.Title}','${poster}','${movie.Year}')">
-      ❤️ Add to Watchlist
-      </button>
+      <button onclick="addReview('${movie.imdbID}','${escapeHTML(movie.Title)}')">Submit Review</button>
+      <button onclick="addToWatchlist('${movie.imdbID}','${escapeHTML(movie.Title)}','${poster}','${escapeHTML(movie.Year)}')">❤️ Add to Watchlist</button>
 
       <div class="review-box" id="reviews-${movie.imdbID}"></div>
     </div>
@@ -260,7 +335,7 @@ async function addReview(id,title){
 }
 
 // =======================
-// LOAD REVIEWS + AVERAGE
+// LOAD REVIEWS + AVG
 // =======================
 async function loadReviews(id){
   const snapshot = await db.collection("reviews").where("imdbID","==",id).get();
@@ -273,7 +348,7 @@ async function loadReviews(id){
     const data = doc.data();
     total += data.rating;
     count++;
-    html += `<p>${"⭐".repeat(data.rating)} - ${data.review}</p><hr>`;
+    html += `<p>${"⭐".repeat(data.rating)} - ${escapeHTML(data.review)}</p><hr>`;
   });
 
   document.getElementById(`reviews-${id}`).innerHTML = html;
@@ -300,8 +375,8 @@ async function loadWatchlist(){
     container.innerHTML += `
       <div class="movie-card">
         <img src="${m.poster}">
-        <h3>${m.title}</h3>
-        <p>${m.year}</p>
+        <h3>${escapeHTML(m.title)}</h3>
+        <p>${escapeHTML(m.year)}</p>
       </div>
     `;
   });
