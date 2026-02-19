@@ -130,9 +130,9 @@ hr {
 
 <script>
 // =======================
-// 🔥 REPLACE THESE KEYS
+// 🔑 KEYS
 // =======================
-const OMDB_KEY = "88e73149";
+const OMDB_KEY = "88e73149"; // Replace with your OMDb API key
 
 const firebaseConfig = {
   apiKey: "YOUR_FIREBASE_KEY",
@@ -150,21 +150,21 @@ const db = firebase.firestore();
 // NAVIGATION
 // =======================
 function showHome(){
-  homeSection.style.display="block";
-  searchSection.style.display="none";
-  watchlistSection.style.display="none";
+  document.getElementById("homeSection").style.display="block";
+  document.getElementById("searchSection").style.display="none";
+  document.getElementById("watchlistSection").style.display="none";
 }
 
 function showSearch(){
-  homeSection.style.display="none";
-  searchSection.style.display="block";
-  watchlistSection.style.display="none";
+  document.getElementById("homeSection").style.display="none";
+  document.getElementById("searchSection").style.display="block";
+  document.getElementById("watchlistSection").style.display="none";
 }
 
 function showWatchlist(){
-  homeSection.style.display="none";
-  searchSection.style.display="none";
-  watchlistSection.style.display="block";
+  document.getElementById("homeSection").style.display="none";
+  document.getElementById("searchSection").style.display="none";
+  document.getElementById("watchlistSection").style.display="block";
   loadWatchlist();
 }
 
@@ -172,11 +172,12 @@ function showWatchlist(){
 // SEARCH MOVIES
 // =======================
 async function search(){
-  const query = document.getElementById("searchInput").value;
+  const query = document.getElementById("searchInput").value.trim();
   if(!query) return alert("Enter movie name");
 
-  const res = await fetch(`https://www.omdbapi.com/?s=${query}&apikey=${88e73149}`);
+  const res = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(query)}&apikey=${OMDB_KEY}`);
   const data = await res.json();
+  console.log(data);
 
   if(data.Response==="False"){
     alert("Movie not found");
@@ -191,9 +192,11 @@ function displayMovies(movies){
   container.innerHTML="";
 
   movies.forEach(movie=>{
+    const poster = movie.Poster !== "N/A" ? movie.Poster : 'https://via.placeholder.com/150';
+
     container.innerHTML += `
     <div class="movie-card">
-      <img src="${movie.Poster}">
+      <img src="${poster}">
       <h3>${movie.Title}</h3>
       <p>${movie.Year}</p>
 
@@ -212,7 +215,7 @@ function displayMovies(movies){
       Submit Review
       </button>
 
-      <button onclick="addToWatchlist('${movie.imdbID}','${movie.Title}','${movie.Poster}','${movie.Year}')">
+      <button onclick="addToWatchlist('${movie.imdbID}','${movie.Title}','${poster}','${movie.Year}')">
       ❤️ Add to Watchlist
       </button>
 
@@ -228,8 +231,8 @@ function displayMovies(movies){
 // ADD REVIEW
 // =======================
 async function addReview(id,title){
-  const text = document.getElementById(`review-${id}`).value;
-  const rating = document.getElementById(`rating-${id}`).value;
+  const text = document.getElementById(`review-${id}`).value.trim();
+  const rating = Number(document.getElementById(`rating-${id}`).value);
 
   if(!text) return alert("Write review first!");
 
@@ -237,7 +240,7 @@ async function addReview(id,title){
     imdbID:id,
     title:title,
     review:text,
-    rating:Number(rating),
+    rating:rating,
     date:new Date()
   });
 
@@ -249,9 +252,7 @@ async function addReview(id,title){
 // LOAD REVIEWS + AVERAGE
 // =======================
 async function loadReviews(id){
-  const snapshot = await db.collection("reviews")
-  .where("imdbID","==",id)
-  .get();
+  const snapshot = await db.collection("reviews").where("imdbID","==",id).get();
 
   let total=0;
   let count=0;
@@ -261,12 +262,10 @@ async function loadReviews(id){
     const data = doc.data();
     total += data.rating;
     count++;
-
     html += `<p>${"⭐".repeat(data.rating)} - ${data.review}</p><hr>`;
   });
 
   document.getElementById(`reviews-${id}`).innerHTML = html;
-
   const avg = count ? (total/count).toFixed(1) : "0";
   document.getElementById(`avg-${id}`).innerHTML = `⭐ Avg: ${avg}`;
 }
@@ -275,13 +274,7 @@ async function loadReviews(id){
 // WATCHLIST
 // =======================
 async function addToWatchlist(id,title,poster,year){
-  await db.collection("watchlist").doc(id).set({
-    imdbID:id,
-    title:title,
-    poster:poster,
-    year:year
-  });
-
+  await db.collection("watchlist").doc(id).set({ imdbID:id, title, poster, year });
   alert("Added to Watchlist ❤️");
 }
 
@@ -293,7 +286,6 @@ async function loadWatchlist(){
 
   snapshot.forEach(doc=>{
     const m = doc.data();
-
     container.innerHTML += `
       <div class="movie-card">
         <img src="${m.poster}">
