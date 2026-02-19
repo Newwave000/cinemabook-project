@@ -155,3 +155,26 @@ section{
     width: 60%;
   }
 }
+
+.movie-card {
+  background:#111;
+  color:white;
+  padding:15px;
+  margin:15px;
+  border-radius:10px;
+  text-align:center;
+}
+
+.review-box {
+  background:#222;
+  padding:8px;
+  margin-top:10px;
+  border-radius:6px;
+  max-height:150px;
+  overflow-y:auto;
+}
+
+input, select, button {
+  margin:5px;
+  padding:5px;
+}
