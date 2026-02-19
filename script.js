@@ -318,3 +318,63 @@ function loadReviews(id){
 
 </body>
 </html>
+
+// ============================
+// Trending / Currently Playing
+// ============================
+
+// Example trending movie list (replace with OMDb API if you want)
+const trendingMoviesList = [
+  "Inception",
+  "Interstellar",
+  "The Dark Knight",
+  "Avengers Endgame",
+  "Titanic",
+  "Joker"
+];
+
+async function loadTrendingMovies() {
+  const container = document.getElementById("trendingMovies");
+  container.innerHTML = "";
+
+  for (let title of trendingMoviesList) {
+    // Fetch movie details from OMDb
+    const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=YOUR_OMDB_KEY`);
+    const movie = await res.json();
+
+    if (movie.Response === "True") {
+      container.innerHTML += `
+        <div class="trending-movie-card">
+          <img src="${movie.Poster}" alt="${movie.Title}">
+          <h3>${movie.Title}</h3>
+          <p>⭐ ${movie.imdbRating} / 10</p>
+          <button onclick="viewDetails('${movie.imdbID}')">View Details</button>
+          <button onclick="watchTrailer('${movie.Title}')">Watch Trailer</button>
+          <button onclick="addToWatchlist('${movie.imdbID}','${movie.Title}','${movie.Poster}','${movie.Year}')">Add to Watchlist</button>
+        </div>
+      `;
+    }
+  }
+}
+
+// Call this when the home section is shown
+function showHome() {
+  document.getElementById("homeSection").style.display = "block";
+  document.getElementById("searchSection").style.display = "none";
+  document.getElementById("newsSection").style.display = "none";
+  document.getElementById("historySection").style.display = "none";
+  document.getElementById("watchlistSection").style.display = "none";
+
+  // Load trending movies dynamically
+  loadTrendingMovies();
+}
+
+// Dummy functions for buttons (replace with real functionality)
+function viewDetails(imdbID) {
+  alert("View details for IMDb ID: " + imdbID);
+}
+
+function watchTrailer(title) {
+  const query = encodeURIComponent(title + " official trailer");
+  window.open(`https://www.youtube.com/results?search_query=${query}`, "_blank");
+}
