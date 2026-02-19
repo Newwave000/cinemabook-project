@@ -97,14 +97,7 @@ section {
 
 /* HERO SECTION */
 #heroSection {
-  position: relative;
-  height: 70vh;
   bbackground: url('images/hero.jpg') center/cover no-repeat;background-size: cover;
-  center/cover no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
 }
 
 .hero-overlay {
