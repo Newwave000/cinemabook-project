@@ -40,7 +40,7 @@ async function search(){
 function display(list){
   const container=document.getElementById("movies");
   container.innerHTML="";
-
+}
   list.forEach(item=>{
     const card=document.createElement("div");
     card.className="card";
@@ -50,10 +50,8 @@ function display(list){
         <strong>${item.Title}</strong><br>
         ${item.Year}
       </div>
-    `;
-    container.appendChild(card);
-  });
 }
+    container.appendChild(card);
 // ===============================
 // ⭐ REVIEW + RATING SYSTEM
 // ===============================
